@@ -11,5 +11,13 @@ class MainMenuActivity : AppCompatActivity() {
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        initListeners()
+    }
+
+    private fun initListeners() {
+        binding.btnExit.setOnClickListener{
+            this.finishAffinity();
+        }
     }
 }
