@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">EasyLock</string>
+    <string name="app_logo">App logo</string>
+    <string name="main_menu_message">Bienvenido a EasyLock!</string>
+    <string name="continue_btn">Continuar</string>
+    <string name="main_menu_choice">Seleccione una opnción</string>
+    <string name="face_icon">Face icon</string>
+    <string name="fingerprint_icon">Fingerprint icon</string>
+    <string name="exit">Salir</string>
+
 </resources>
