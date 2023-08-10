@@ -28,47 +28,21 @@ class MainMenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         val view = binding.root
-        setContentView(view)
-
+        checkDeviceHasBiometric()
         initListeners()
         executor = ContextCompat.getMainExecutor(this)
-        biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback(){
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                super.onAuthenticationError(errorCode, errString)
-                Toast.makeText(this@MainMenuActivity,
-                    "Authentication error: $errString",Toast.LENGTH_LONG).show()
-            }
-            // Auth success
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                super.onAuthenticationSucceeded(result)
-                Toast.makeText(this@MainMenuActivity,
-                    "Authentication succed",Toast.LENGTH_LONG).show()
-            }
-
-            override fun onAuthenticationFailed() {
-                super.onAuthenticationFailed()
-                Toast.makeText(this@MainMenuActivity,
-                    "Authentication failed",Toast.LENGTH_LONG).show()
-            }
-        })
-
-        promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Autenticación biómetrica")
-            .setSubtitle("Coloque su dedo en el sensor")
-            .setNegativeButtonText("Cancelar")
-            .build()
-//        binding.btnLogin.setOnClickListener{
-//            biometricPrompt.authenticate(promptInfo)
-//        }
-
+        biometricPrompt = createBiometricPrompt()
+        promptInfo = buildPromtInfo()
+        setContentView(view)
     }
-
     private fun initListeners() {
         binding.btnExit.setOnClickListener{
             this.finishAffinity();
         }
         binding.cvFinger.setOnClickListener {
-            checkDeviceHasBiometric()
+//            checkDeviceHasBiometric()
+            biometricPrompt.authenticate(promptInfo)
+
         }
     }
 
@@ -78,17 +52,19 @@ class MainMenuActivity : AppCompatActivity() {
             BiometricManager.BIOMETRIC_SUCCESS ->{
 
                 Log.d("MY_APP_TAG", "App can authenticate using biometrics.")
-                biometricPrompt.authenticate(promptInfo)
-//                binding.tvMsg.text = "App can authenticate using biometrics."
-//                binding.btnLogin.isEnabled = true
+                binding.cvFinger.isClickable = true
+                binding.cvFinger.isFocusable = true
+                binding.imgFinger.setImageResource(R.drawable.ic_fingerprint_24)
             }
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->{
                 Log.e("MY_APP_TAG", "No biometric features available on this device.")
-//                binding.tvMsg.text = "No biometric features available on this device."
+                Toast.makeText(this@MainMenuActivity,
+                    "Autenticación biometrica no disponible.",Toast.LENGTH_LONG).show()
             }
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->{
                 Log.e("MY_APP_TAG", "Biometric features are currently unavailable.")
-//                binding.tvMsg.text = "Biometric features are currently unavailable."
+                Toast.makeText(this@MainMenuActivity,
+                    "Autenticación biometrica no disponible.",Toast.LENGTH_LONG).show()
 
             }
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
@@ -101,8 +77,43 @@ class MainMenuActivity : AppCompatActivity() {
             }
             else ->{
                 Log.e("MY_APP_TAG", "Biometric features are currently unavailable.")
+                Toast.makeText(this@MainMenuActivity,
+                    "Autenticación biometrica no disponible.",Toast.LENGTH_LONG).show()
 
             }
         }
     }
+    private fun buildPromtInfo() = PromptInfo.Builder()
+        .setTitle("Autenticación biómetrica")
+        .setSubtitle("Coloque su dedo en el sensor")
+        .setNegativeButtonText("Cancelar")
+        .build()
+
+    private fun createBiometricPrompt() =
+        BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                Toast.makeText(
+                    this@MainMenuActivity,
+                    "Error al autenticar: $errString", Toast.LENGTH_LONG
+                ).show()
+            }
+
+            // Auth success
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                Toast.makeText(
+                    this@MainMenuActivity,
+                    "Autenticacion exitosa.", Toast.LENGTH_LONG
+                ).show()
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                Toast.makeText(
+                    this@MainMenuActivity,
+                    "Error al autenticar.", Toast.LENGTH_LONG
+                ).show()
+            }
+        })
 }
