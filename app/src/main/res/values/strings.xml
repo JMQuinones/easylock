@@ -7,5 +7,7 @@
     <string name="face_icon">Face icon</string>
     <string name="fingerprint_icon">Fingerprint icon</string>
     <string name="exit">Salir</string>
+    <string name="predicted">Predecido: </string>
+    <string name="confidence">Confianza: </string>
 
 </resources>

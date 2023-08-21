@@ -45,7 +45,8 @@ class MainMenuActivity : AppCompatActivity() {
 
         }
         binding.cvFace.setOnClickListener {
-            showDialog()
+            val intent = Intent(this, CameraActivity::class.java)
+            startActivity(intent)
         }
     }
 
