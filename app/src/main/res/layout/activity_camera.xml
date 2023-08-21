@@ -23,7 +23,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ivPicture"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearPredictions"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -70,7 +70,14 @@
 
     </LinearLayout>
 
-
+    <ImageView
+        android:layout_marginTop="16dp"
+        android:id="@+id/ivFace"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnPicture" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnPicture"
