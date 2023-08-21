@@ -9,5 +9,6 @@
     <string name="exit">Salir</string>
     <string name="predicted">Predecido: </string>
     <string name="confidence">Confianza: </string>
+    <string name="picture">Tomar foto</string>
 
 </resources>

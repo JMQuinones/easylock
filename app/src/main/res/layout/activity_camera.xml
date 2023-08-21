@@ -70,6 +70,7 @@
 
 
     <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnPicture"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/secondary"
@@ -77,6 +78,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:text="@string/continue_btn"/>
+        android:text="@string/picture"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
