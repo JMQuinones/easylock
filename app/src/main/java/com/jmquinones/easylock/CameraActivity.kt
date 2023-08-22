@@ -12,11 +12,14 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.Model1
+import com.jmquinones.easylock.ml.ModelUnquant
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
@@ -75,11 +78,12 @@ class CameraActivity : AppCompatActivity() {
         image = ThumbnailUtils.extractThumbnail(image, dimension, dimension)
         binding.ivPicture.setImageBitmap(image)
         image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false)
-        faceDetection(image)
-        classifyImage(image)
+        val result = faceDetection(image)
+        Log.d("res", result.toString())
+//        classifyImage(faceDetected)
     }
 
-    private fun faceDetection(imageBitmap: Bitmap){
+    private fun faceDetection(imageBitmap: Bitmap): Task<MutableList<Face>> {
         val options = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
@@ -89,24 +93,35 @@ class CameraActivity : AppCompatActivity() {
 
         val image = InputImage.fromBitmap(imageBitmap, 0)
         val detector = FaceDetection.getClient(options)
+
+//        var faceDetected : Bitmap
         val result = detector.process(image)
             .addOnSuccessListener { faces ->
-                for (face in faces) {
-                    val bounds = face.boundingBox
-                    Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
-                    // crop detected face
-                    binding.ivFace.setImageBitmap(Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top))
+                //for (face in faces) {
+                    try {
+                        val face = faces.first()
+                        val bounds = face.boundingBox
+                        Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
+                        // crop detected face
+                        val faceDetected = Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top)
+                        binding.ivFace.setImageBitmap(faceDetected)
+                        classifyImage(faceDetected)
+                    } catch (e: NumberFormatException) {
+                        Log.e("error", e.toString())
+                    }
 
-                }
+
+                //}
             }
             .addOnFailureListener { e ->
-               Log.e("ERROR", e.toString())
+               Log.e("ERROR", e.stackTraceToString())
             }
-        Log.d("res", result.toString())
+        return result
     }
 
     private fun classifyImage(image: Bitmap?) {
-        val model = Model1.newInstance(applicationContext)
+//        val model = Model1.newInstance(applicationContext)
+        val model = ModelUnquant.newInstance(applicationContext)
 
         // Creates inputs for reference.
         val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
@@ -141,7 +156,7 @@ class CameraActivity : AppCompatActivity() {
                 maxPos = i
             }
         }
-        val classes = arrayOf("Banana", "orange", "Pen", "Stikcy Note")
+        val classes = arrayOf("jmqv", "aaron")
         binding.tvPrediction.text = classes[maxPos]
         var s = ""
         for (i in classes.indices) {
