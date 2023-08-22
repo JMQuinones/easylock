@@ -109,7 +109,7 @@ class CameraActivity : AppCompatActivity() {
                             Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
                             // crop detected face
                             val faceDetected = Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top)
-                            binding.ivFace.setImageBitmap(faceDetected)
+//                            binding.ivFace.setImageBitmap(faceDetected)
                             classifyImage(faceDetected)
 
                         } else {
@@ -166,11 +166,13 @@ class CameraActivity : AppCompatActivity() {
             }
         }
         val classes = arrayOf("jmqv", "aaron")
-        binding.tvPrediction.text = classes[maxPos]
         var s = ""
-        for (i in classes.indices) {
-            s += String.format("%s: %.1f%%\n", classes[i], confidences[i] * 100)
-        }
+//        for (i in classes.indices) {
+//            s += String.format("%s: %.1f%%\n", classes[i], confidences[i] * 100)
+//        }
+        s += String.format("%.1f%%", confidences[maxPos] * 100)
+
+        binding.tvPrediction.text = classes[maxPos]
         binding.tvConfidence.text = s
 
         // Releases model resources if no longer used.
