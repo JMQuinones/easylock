@@ -10,12 +10,14 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.Model1
@@ -29,12 +31,14 @@ import kotlin.math.log
 class CameraActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCameraBinding
     private var imageSize:Int =224
+    private lateinit var detector: FaceDetector
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityCameraBinding.inflate(layoutInflater)
         val view = binding.root
         super.onCreate(savedInstanceState)
         setContentView(view)
         initListeners()
+        initFaceDetector()
     }
 
     private fun initListeners() {
@@ -78,34 +82,40 @@ class CameraActivity : AppCompatActivity() {
         image = ThumbnailUtils.extractThumbnail(image, dimension, dimension)
         binding.ivPicture.setImageBitmap(image)
         image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false)
-        val result = faceDetection(image)
-        Log.d("res", result.toString())
+        faceDetection(image)
 //        classifyImage(faceDetected)
     }
 
-    private fun faceDetection(imageBitmap: Bitmap): Task<MutableList<Face>> {
+    private fun initFaceDetector(){
         val options = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
             .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
             .build()
-
+        detector = FaceDetection.getClient(options)
+    }
+    private fun faceDetection(imageBitmap: Bitmap){
         val image = InputImage.fromBitmap(imageBitmap, 0)
-        val detector = FaceDetection.getClient(options)
 
 //        var faceDetected : Bitmap
         val result = detector.process(image)
             .addOnSuccessListener { faces ->
                 //for (face in faces) {
                     try {
-                        val face = faces.first()
-                        val bounds = face.boundingBox
-                        Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
-                        // crop detected face
-                        val faceDetected = Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top)
-                        binding.ivFace.setImageBitmap(faceDetected)
-                        classifyImage(faceDetected)
+                        if(faces.isNotEmpty()){
+                            val face = faces.first()
+                            val bounds = face.boundingBox
+                            Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
+                            // crop detected face
+                            val faceDetected = Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top)
+                            binding.ivFace.setImageBitmap(faceDetected)
+                            classifyImage(faceDetected)
+
+                        } else {
+                            Toast.makeText(this@CameraActivity,
+                                "No se encontraron rostors, intente de nuevo.",Toast.LENGTH_LONG).show()
+                        }
                     } catch (e: NumberFormatException) {
                         Log.e("error", e.toString())
                     }
@@ -116,7 +126,6 @@ class CameraActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                Log.e("ERROR", e.stackTraceToString())
             }
-        return result
     }
 
     private fun classifyImage(image: Bitmap?) {
