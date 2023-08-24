@@ -7,6 +7,8 @@ import androidx.appcompat.widget.AppCompatButton
 
 class MainActivity : AppCompatActivity() {
     private lateinit var btnContinue: AppCompatButton
+    private lateinit var btnConnect: AppCompatButton
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,11 +20,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun initComponents() {
         btnContinue = findViewById(R.id.btnContinue)
+        btnConnect = findViewById(R.id.btnConnect)
     }
 
     private fun initListeners() {
         btnContinue.setOnClickListener{
             val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+        }
+        btnConnect.setOnClickListener{
+            val intent = Intent(this, BluetoothConnectActivity::class.java)
             startActivity(intent)
         }
     }
