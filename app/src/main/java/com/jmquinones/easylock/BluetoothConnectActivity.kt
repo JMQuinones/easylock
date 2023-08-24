@@ -1,6 +1,7 @@
 package com.jmquinones.easylock
 
 import android.Manifest
+import android.annotation.SuppressLint
 //import android.R
 import android.bluetooth.BluetoothDevice
 import android.content.pm.PackageManager
@@ -40,7 +41,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
             // Bluetooth unavailable on this device :( tell the user
             Toast.makeText(
                 this@BluetoothConnectActivity,
-                "Bluetooth not available.",
+                "Bluetooth no displonible.",
                 Toast.LENGTH_LONG
             )
                 .show() // Replace context with your context instance.
@@ -52,33 +53,10 @@ class BluetoothConnectActivity : AppCompatActivity() {
     }
     private fun initListeners(){
         checkPermission()
-//        binding.btnBluetooth.setOnClickListener {
-//            // Setup our BluetoothManager
-//
-//            Log.d("TEST", "TEST")
-//            pairedDevices = bluetoothManager.pairedDevicesList
-////            var s = ""
-//            val arrayListDevice: ArrayList<String> = ArrayList<String>()
-//            for (device in pairedDevices) {
-////                s += "Device name: " + device.name + "Device MAC Address: " + device.address + "\n"
-////                Log.d("My Bluetooth App", "Device name: " + device.name)
-////                Log.d("My Bluetooth App", "Device MAC Address: " + device.address)
-//                arrayListDevice.add("Dispositivo: " + device.name + "\nDireccion MAC: " + device.address)
-//
-//            }
-//
-//            val adapter = ArrayAdapter(
-//                this,
-//                R.layout.custom_list,
-//                arrayListDevice
-//            )
-//
-//            binding.listDeviceBluetooth.adapter = adapter
-//
-//        }
 
         binding.listDeviceBluetooth.setOnItemClickListener { _, _, i, _ ->
             if(!pairedDevices.isEmpty()){
+                binding.tvTitle.text = resources.getString(R.string.select_device)
                 binding.tvSelected.text = pairedDevices.elementAt(i).name+"\n"+pairedDevices.elementAt(i).address
                 connectDevice(pairedDevices.elementAt(i).address)
             }
@@ -108,6 +86,10 @@ class BluetoothConnectActivity : AppCompatActivity() {
         pairedDevices = bluetoothManager.pairedDevicesList
 //            var s = ""
         val arrayListDevice: ArrayList<String> = ArrayList<String>()
+        if(pairedDevices.isEmpty()){
+            binding.tvTitle.text = resources.getString(R.string.no_paired_device);
+            return
+        }
         for (device in pairedDevices) {
 //                s += "Device name: " + device.name + "Device MAC Address: " + device.address + "\n"
 //                Log.d("My Bluetooth App", "Device name: " + device.name)
@@ -134,6 +116,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun connectDevice(mac: String) {
         bluetoothManager.openSerialDevice(mac)
             .subscribeOn(Schedulers.io())
@@ -148,35 +131,26 @@ class BluetoothConnectActivity : AppCompatActivity() {
 
         // Listen to bluetooth events
         deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
-
-        // Let's send a message:
-//        if (flag){
-//
-//            deviceInterface.sendMessage("A")
-//            flag = !flag
-//        } else {
-//            deviceInterface.sendMessage("B")
-//            flag = !flag
-//        }
     }
+
     private fun sendMessage(msg: String) {
         deviceInterface.sendMessage(msg)
     }
 
     private fun onMessageSent(message: String) {
         // We sent a message! Handle it here.
-        Toast.makeText(this@BluetoothConnectActivity, "Sent a message! Message was: $message", Toast.LENGTH_LONG)
+        Toast.makeText(this@BluetoothConnectActivity, "Enviando mensaje...", Toast.LENGTH_LONG)
             .show() // Replace context with your context instance.
     }
 
     private fun onMessageReceived(message: String) {
         // We received a message! Handle it here.
-        Toast.makeText(this@BluetoothConnectActivity, "Received a message! Message was: $message", Toast.LENGTH_LONG)
+        Toast.makeText(this@BluetoothConnectActivity, "Mensaje enviado exitosamente", Toast.LENGTH_LONG)
             .show() // Replace context with your context instance.
     }
 
     private fun onError(error: Throwable) {
-        Toast.makeText(this@BluetoothConnectActivity, "Something went wrong", Toast.LENGTH_LONG)
+        Toast.makeText(this@BluetoothConnectActivity, "Algo salio mal", Toast.LENGTH_LONG)
             .show()
     }
 }
