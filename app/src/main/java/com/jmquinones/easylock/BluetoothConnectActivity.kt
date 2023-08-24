@@ -1,7 +1,7 @@
 package com.jmquinones.easylock
 
 import android.Manifest
-import android.R
+//import android.R
 import android.bluetooth.BluetoothDevice
 import android.content.pm.PackageManager
 import android.os.Build
@@ -26,7 +26,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var pairedDevices: Collection<BluetoothDevice>
     private lateinit var deviceInterface: SimpleBluetoothDeviceInterface
-    var flag: Boolean = true
+    private var flag: Boolean = true
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityBluetoothConnectBinding.inflate(layoutInflater)
@@ -46,43 +46,84 @@ class BluetoothConnectActivity : AppCompatActivity() {
                 .show() // Replace context with your context instance.
             finish()
         }
+        loadPairedDevices()
         initListeners()
 
     }
     private fun initListeners(){
         checkPermission()
-        binding.btnBluetooth.setOnClickListener {
-            // Setup our BluetoothManager
+//        binding.btnBluetooth.setOnClickListener {
+//            // Setup our BluetoothManager
+//
+//            Log.d("TEST", "TEST")
+//            pairedDevices = bluetoothManager.pairedDevicesList
+////            var s = ""
+//            val arrayListDevice: ArrayList<String> = ArrayList<String>()
+//            for (device in pairedDevices) {
+////                s += "Device name: " + device.name + "Device MAC Address: " + device.address + "\n"
+////                Log.d("My Bluetooth App", "Device name: " + device.name)
+////                Log.d("My Bluetooth App", "Device MAC Address: " + device.address)
+//                arrayListDevice.add("Dispositivo: " + device.name + "\nDireccion MAC: " + device.address)
+//
+//            }
+//
+//            val adapter = ArrayAdapter(
+//                this,
+//                R.layout.custom_list,
+//                arrayListDevice
+//            )
+//
+//            binding.listDeviceBluetooth.adapter = adapter
+//
+//        }
 
-            Log.d("TEST", "TEST")
-            pairedDevices = bluetoothManager.pairedDevicesList
-            var s = ""
-            val arrayListDevice: ArrayList<String> = ArrayList<String>()
-            for (device in pairedDevices) {
-                s += "Device name: " + device.name + "Device MAC Address: " + device.address + "\n"
-                Log.d("My Bluetooth App", "Device name: " + device.name)
-                Log.d("My Bluetooth App", "Device MAC Address: " + device.address)
-                arrayListDevice.add("Dispositivo: " + device.name + "\nDireccion MAC: " + device.address)
-
-            }
-            val adapter = ArrayAdapter(
-                this,
-                R.layout.simple_expandable_list_item_1,
-                arrayListDevice
-            )
-            binding.listDeviceBluetooth.adapter = adapter
-
-        }
-
-        binding.listDeviceBluetooth.setOnItemClickListener { adapterView, view, i, l ->
+        binding.listDeviceBluetooth.setOnItemClickListener { _, _, i, _ ->
             if(!pairedDevices.isEmpty()){
                 binding.tvSelected.text = pairedDevices.elementAt(i).name+"\n"+pairedDevices.elementAt(i).address
                 connectDevice(pairedDevices.elementAt(i).address)
             }
         }
+        binding.btnOn.setOnClickListener{
+            if(this::deviceInterface.isInitialized){
+                sendMessage("A")
+            } else {
+                Toast.makeText(this@BluetoothConnectActivity, "Something went wrong", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
+        binding.btnOff.setOnClickListener{
+            if(this::deviceInterface.isInitialized){
+                sendMessage("B")
+            } else {
+                Toast.makeText(this@BluetoothConnectActivity, "Something went wrong", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
 
     }
 
+    private fun loadPairedDevices(){
+        checkPermission()
+        Log.d("TEST", "TEST")
+        pairedDevices = bluetoothManager.pairedDevicesList
+//            var s = ""
+        val arrayListDevice: ArrayList<String> = ArrayList<String>()
+        for (device in pairedDevices) {
+//                s += "Device name: " + device.name + "Device MAC Address: " + device.address + "\n"
+//                Log.d("My Bluetooth App", "Device name: " + device.name)
+//                Log.d("My Bluetooth App", "Device MAC Address: " + device.address)
+            arrayListDevice.add("Dispositivo: " + device.name + "\nDireccion MAC: " + device.address)
+
+        }
+
+        val adapter = ArrayAdapter(
+            this,
+            R.layout.custom_list,
+            arrayListDevice
+        )
+
+        binding.listDeviceBluetooth.adapter = adapter
+    }
     private fun checkPermission() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -109,14 +150,17 @@ class BluetoothConnectActivity : AppCompatActivity() {
         deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
 
         // Let's send a message:
-        if (flag){
-
-            deviceInterface.sendMessage("A")
-            flag = !flag
-        } else {
-            deviceInterface.sendMessage("B")
-            flag = !flag
-        }
+//        if (flag){
+//
+//            deviceInterface.sendMessage("A")
+//            flag = !flag
+//        } else {
+//            deviceInterface.sendMessage("B")
+//            flag = !flag
+//        }
+    }
+    private fun sendMessage(msg: String) {
+        deviceInterface.sendMessage(msg)
     }
 
     private fun onMessageSent(message: String) {
@@ -132,7 +176,8 @@ class BluetoothConnectActivity : AppCompatActivity() {
     }
 
     private fun onError(error: Throwable) {
-        // Handle the error
+        Toast.makeText(this@BluetoothConnectActivity, "Something went wrong", Toast.LENGTH_LONG)
+            .show()
     }
 }
 
