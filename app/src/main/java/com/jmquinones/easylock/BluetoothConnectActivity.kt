@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 //import android.R
 import android.bluetooth.BluetoothDevice
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -27,6 +28,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var pairedDevices: Collection<BluetoothDevice>
     private lateinit var deviceInterface: SimpleBluetoothDeviceInterface
+    private lateinit var MACAddress: String
     private var flag: Boolean = true
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +65,14 @@ class BluetoothConnectActivity : AppCompatActivity() {
         }
         binding.btnOn.setOnClickListener{
             if(this::deviceInterface.isInitialized){
+                binding.stored.text =this.openFileInput("device_address"
+
+                ).bufferedReader().useLines { lines ->
+                    lines.fold("") { some, text ->
+                        "$some\n$text"
+                    }
+                }
+
                 sendMessage("A")
             } else {
                 Toast.makeText(this@BluetoothConnectActivity, "Something went wrong", Toast.LENGTH_LONG)
@@ -128,11 +138,19 @@ class BluetoothConnectActivity : AppCompatActivity() {
         // You are now connected to this device!
         // Here you may want to retain an instance to your device:
         deviceInterface = connectedDevice.toSimpleDeviceInterface()
+        MACAddress = connectedDevice.mac
+        binding.mac.text = MACAddress
+        saveMACAddress(MACAddress)
 
         // Listen to bluetooth events
         deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
     }
-
+    private fun saveMACAddress(address: String) {
+        val filename = "device_address"
+        this.openFileOutput(filename, Context.MODE_PRIVATE).use {
+            it.write(address.toByteArray())
+        }
+    }
     private fun sendMessage(msg: String) {
         deviceInterface.sendMessage(msg)
     }

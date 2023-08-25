@@ -37,6 +37,7 @@ class CameraActivity : AppCompatActivity() {
         val view = binding.root
         super.onCreate(savedInstanceState)
         setContentView(view)
+        readMACAddress()
         initListeners()
         initFaceDetector()
     }
@@ -179,5 +180,14 @@ class CameraActivity : AppCompatActivity() {
         model.close()
     }
 
+    private fun readMACAddress(){
+        binding.mac.text =this.openFileInput("device_address"
+
+        ).bufferedReader().useLines { lines ->
+            lines.fold("") { some, text ->
+                "$some\n$text"
+            }
+        }
+    }
 
 }

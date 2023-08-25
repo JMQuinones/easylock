@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         initListeners()
     }
 
+
     private fun initComponents() {
         btnContinue = findViewById(R.id.btnContinue)
         btnConnect = findViewById(R.id.btnConnect)
