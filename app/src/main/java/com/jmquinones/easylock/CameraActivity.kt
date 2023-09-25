@@ -176,6 +176,18 @@ class CameraActivity : AppCompatActivity() {
         binding.tvPrediction.text = classes[maxPos]
         binding.tvConfidence.text = s
 
+        // if authentication succed send message to the lock
+        if(classes[maxPos] != "unknow" && confidences[maxPos]*100 >= 50){
+            Toast.makeText(this@CameraActivity,
+                "Exito al autenticar. Abriendo cerradura",Toast.LENGTH_LONG).show()
+            //TODO: Send message to the arduino boards to open the lock
+        } else {
+            Toast.makeText(this@CameraActivity,
+                "Error al autenticar.",Toast.LENGTH_LONG).show()
+            // save to log?
+        }
+
+
         // Releases model resources if no longer used.
         model.close()
     }
