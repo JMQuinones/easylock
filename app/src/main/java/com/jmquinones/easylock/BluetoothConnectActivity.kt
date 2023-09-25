@@ -29,6 +29,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     private lateinit var pairedDevices: Collection<BluetoothDevice>
     private lateinit var deviceInterface: SimpleBluetoothDeviceInterface
     private lateinit var MACAddress: String
+    private lateinit var bluetoothModel: BluetoothModel
     private var connectionAttemptedOrMade: Boolean = false
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -39,19 +40,22 @@ class BluetoothConnectActivity : AppCompatActivity() {
         setContentView(view)
 //        checkPermission()
 
+        bluetoothModel= BluetoothModel(context = this@BluetoothConnectActivity)
         bluetoothManager = BluetoothManager.getInstance()
-        if (bluetoothManager == null) {
-            // Bluetooth unavailable on this device :( tell the user
-            Toast.makeText(
-                this@BluetoothConnectActivity,
-                "Bluetooth no displonible.",
-                Toast.LENGTH_LONG
-            )
-                .show() // Replace context with your context instance.
-            finish()
-        }
+//        if (bluetoothManager == null) {
+//            // Bluetooth unavailable on this device :( tell the user
+//            Toast.makeText(
+//                this@BluetoothConnectActivity,
+//                "Bluetooth no displonible.",
+//                Toast.LENGTH_LONG
+//            )
+//                .show() // Replace context with your context instance.
+//            finish()
+//        }
         loadPairedDevices()
         initListeners()
+
+
 
     }
 
@@ -67,7 +71,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
             }
         }
         binding.btnOn.setOnClickListener {
-            if (this::deviceInterface.isInitialized) {
+            if (this::bluetoothModel.isInitialized) {
                 binding.stored.text = this.openFileInput(
                     "device_address"
 
@@ -77,7 +81,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
                     }
                 }
 
-                sendMessage("A")
+                bluetoothModel.sendMessage("A")
             } else {
                 Toast.makeText(
                     this@BluetoothConnectActivity,
@@ -88,8 +92,8 @@ class BluetoothConnectActivity : AppCompatActivity() {
             }
         }
         binding.btnOff.setOnClickListener {
-            if (this::deviceInterface.isInitialized) {
-                sendMessage("B")
+            if (this::bluetoothModel.isInitialized) {
+                bluetoothModel.sendMessage("B")
             } else {
                 Toast.makeText(
                     this@BluetoothConnectActivity,
@@ -104,8 +108,9 @@ class BluetoothConnectActivity : AppCompatActivity() {
 
     private fun loadPairedDevices() {
         checkPermission()
-        Log.d("TEST", "TEST")
-        pairedDevices = bluetoothManager.pairedDevicesList
+        pairedDevices = bluetoothModel.pairedDevices
+//        pairedDevices = bluetoothManager.pairedDevicesList
+
 //            var s = ""
         val arrayListDevice: ArrayList<String> = ArrayList<String>()
         if (pairedDevices.isEmpty()) {
@@ -141,38 +146,41 @@ class BluetoothConnectActivity : AppCompatActivity() {
 
     @SuppressLint("CheckResult")
     private fun connectDevice(mac: String) {
-        if (!connectionAttemptedOrMade) {
-            bluetoothManager.openSerialDevice(mac)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onConnected, this::onError)
-            this.connectionAttemptedOrMade = true
-        }
+        Log.d("MAC", mac)
+        MACAddress = mac
+        bluetoothModel.connectDevice(mac)
+//        if (!connectionAttemptedOrMade) {
+//            bluetoothManager.openSerialDevice(mac)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(this::onConnected, this::onError)
+//            this.connectionAttemptedOrMade = true
+//        }
     }
 
-    private fun onConnected(connectedDevice: BluetoothSerialDevice) {
+//    private fun onConnected(connectedDevice: BluetoothSerialDevice) {
+//
+//        // You are now connected to this device!
+//        // Here you may want to retain an instance to your device:
+//        deviceInterface = connectedDevice.toSimpleDeviceInterface()
+//        MACAddress = connectedDevice.mac
+//        binding.mac.text = MACAddress
+//        saveMACAddress(MACAddress)
+//
+//        // Listen to bluetooth events
+//        deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
+//        Toast.makeText(this@BluetoothConnectActivity, "Conectado con exito", Toast.LENGTH_LONG)
+//            .show()
+//
+//    }
 
-        // You are now connected to this device!
-        // Here you may want to retain an instance to your device:
-        deviceInterface = connectedDevice.toSimpleDeviceInterface()
-        MACAddress = connectedDevice.mac
-        binding.mac.text = MACAddress
-        saveMACAddress(MACAddress)
-
-        // Listen to bluetooth events
-        deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
-        Toast.makeText(this@BluetoothConnectActivity, "Conectado con exito", Toast.LENGTH_LONG)
-            .show()
-
-    }
-
-    fun disconnect() {
-        // Check we were connected
-        if (connectionAttemptedOrMade && this::deviceInterface.isInitialized) {
-            connectionAttemptedOrMade = false
-            bluetoothManager.closeDevice(deviceInterface)
-        }
-    }
+//    fun disconnect() {
+//        // Check we were connected
+//        if (connectionAttemptedOrMade && this::deviceInterface.isInitialized) {
+//            connectionAttemptedOrMade = false
+//            bluetoothManager.closeDevice(deviceInterface)
+//        }
+//    }
 
     private fun saveMACAddress(address: String) {
         val filename = "device_address"
@@ -181,30 +189,30 @@ class BluetoothConnectActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendMessage(msg: String) {
-        deviceInterface.sendMessage(msg)
-    }
-
-    private fun onMessageSent(message: String) {
-        // We sent a message! Handle it here.
-        Toast.makeText(this@BluetoothConnectActivity, "Enviando mensaje...", Toast.LENGTH_LONG)
-            .show() // Replace context with your context instance.
-    }
-
-    private fun onMessageReceived(message: String) {
-        // We received a message! Handle it here.
-        Toast.makeText(
-            this@BluetoothConnectActivity,
-            "Mensaje enviado exitosamente",
-            Toast.LENGTH_LONG
-        )
-            .show() // Replace context with your context instance.
-    }
-
-    private fun onError(error: Throwable) {
-        Toast.makeText(this@BluetoothConnectActivity, "Algo salio mal", Toast.LENGTH_LONG)
-            .show()
-    }
+//    private fun sendMessage(msg: String) {
+//        deviceInterface.sendMessage(msg)
+//    }
+//
+//    private fun onMessageSent(message: String) {
+//        // We sent a message! Handle it here.
+//        Toast.makeText(this@BluetoothConnectActivity, "Enviando mensaje...", Toast.LENGTH_LONG)
+//            .show() // Replace context with your context instance.
+//    }
+//
+//    private fun onMessageReceived(message: String) {
+//        // We received a message! Handle it here.
+//        Toast.makeText(
+//            this@BluetoothConnectActivity,
+//            "Mensaje enviado exitosamente",
+//            Toast.LENGTH_LONG
+//        )
+//            .show() // Replace context with your context instance.
+//    }
+//
+//    private fun onError(error: Throwable) {
+//        Toast.makeText(this@BluetoothConnectActivity, "Algo salio mal", Toast.LENGTH_LONG)
+//            .show()
+//    }
 }
 
 
