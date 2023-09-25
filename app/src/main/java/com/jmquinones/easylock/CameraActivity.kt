@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
+import android.net.MacAddress
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -32,6 +33,7 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCameraBinding
     private var imageSize:Int =224
     private lateinit var detector: FaceDetector
+    private lateinit var MACAddress: String
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityCameraBinding.inflate(layoutInflater)
         val view = binding.root
@@ -117,8 +119,10 @@ class CameraActivity : AppCompatActivity() {
                             Toast.makeText(this@CameraActivity,
                                 "No se encontraron rostors, intente de nuevo.",Toast.LENGTH_LONG).show()
                         }
-                    } catch (e: NumberFormatException) {
+                    } catch (e: IllegalArgumentException) {
                         Log.e("error", e.toString())
+                        Toast.makeText(this@CameraActivity,
+                            "Algo salio mal, intente de nuevo.",Toast.LENGTH_LONG).show()
                     }
 
 
@@ -178,9 +182,26 @@ class CameraActivity : AppCompatActivity() {
 
         // if authentication succed send message to the lock
         if(classes[maxPos] != "unknow" && confidences[maxPos]*100 >= 50){
-            Toast.makeText(this@CameraActivity,
-                "Exito al autenticar. Abriendo cerradura",Toast.LENGTH_LONG).show()
-            //TODO: Send message to the arduino boards to open the lock
+//            val macAddress = readMACAddress()
+            Log.i("MAC 1", "FC:A8:9A:00:57:0B"+" "+"FC:A8:9A:00:57:0B".length)
+            Log.i("MAC 2", "'"+MACAddress+"'"+" "+MACAddress.length)
+            Log.i("EQUALS", ("FC:A8:9A:00:57:0B" == MACAddress.trim()).toString())
+
+            println("mac${MACAddress}")
+            if(MACAddress.isNotEmpty()){
+                Toast.makeText(this@CameraActivity,
+                    "Exito al autenticar. Abriendo cerradura",Toast.LENGTH_LONG).show()
+                //TODO: Send message to the arduino boards to open the lock
+                val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@CameraActivity)
+
+                bluetoothModel.connectDeviceAndOpen("FC:A8:9A:00:57:0B")
+//                bluetoothModel.sendMessage("A")
+
+
+            } else {
+                Toast.makeText(this@CameraActivity,
+                    "No hay un dispositivo conectado.",Toast.LENGTH_LONG).show()
+            }
         } else {
             Toast.makeText(this@CameraActivity,
                 "Error al autenticar.",Toast.LENGTH_LONG).show()
@@ -193,13 +214,16 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun readMACAddress(){
-        binding.mac.text =this.openFileInput("device_address"
+         MACAddress=this.openFileInput("device_address"
 
         ).bufferedReader().useLines { lines ->
             lines.fold("") { some, text ->
                 "$some\n$text"
             }
-        }
+        }.trim()
+        Log.i("MAc_----sad-----------------------------------------", MACAddress)
+//        MACAddress = macAddress
+        binding.mac.text = MACAddress
     }
 
 }

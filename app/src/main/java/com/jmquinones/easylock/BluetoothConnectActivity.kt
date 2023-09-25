@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -22,12 +23,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 
+
 class BluetoothConnectActivity : AppCompatActivity() {
     //    private lateinit var bluetoothManager: BluetoothManager
     private lateinit var binding: ActivityBluetoothConnectBinding
-    private lateinit var bluetoothManager: BluetoothManager
+//    private lateinit var bluetoothManager: BluetoothManager
     private lateinit var pairedDevices: Collection<BluetoothDevice>
-    private lateinit var deviceInterface: SimpleBluetoothDeviceInterface
+//    private lateinit var deviceInterface: SimpleBluetoothDeviceInterface
     private lateinit var MACAddress: String
     private lateinit var bluetoothModel: BluetoothModel
     private var connectionAttemptedOrMade: Boolean = false
@@ -41,7 +43,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
 //        checkPermission()
 
         bluetoothModel= BluetoothModel(context = this@BluetoothConnectActivity)
-        bluetoothManager = BluetoothManager.getInstance()
+//        bluetoothManager = BluetoothManager.getInstance()
 //        if (bluetoothManager == null) {
 //            // Bluetooth unavailable on this device :( tell the user
 //            Toast.makeText(
@@ -57,7 +59,10 @@ class BluetoothConnectActivity : AppCompatActivity() {
 
 
 
+
     }
+
+
 
     private fun initListeners() {
         checkPermission()
@@ -70,6 +75,17 @@ class BluetoothConnectActivity : AppCompatActivity() {
                 connectDevice(pairedDevices.elementAt(i).address)
             }
         }
+        binding.btnDisconnect.setOnClickListener {
+            this.bluetoothModel.disconnect(MACAddress)
+        }
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                println("Back button pressed")
+                Toast.makeText(this@BluetoothConnectActivity, "BACK PRESSED", Toast.LENGTH_LONG).show()
+                bluetoothModel.disconnect(MACAddress)
+                finish()
+            }
+        })
         binding.btnOn.setOnClickListener {
             if (this::bluetoothModel.isInitialized) {
                 binding.stored.text = this.openFileInput(
