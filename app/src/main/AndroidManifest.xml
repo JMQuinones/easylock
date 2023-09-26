@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
-    <!--suppress DeprecatedClassUsageInspection -->
+
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" /> <!-- suppress DeprecatedClassUsageInspection -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,6 +27,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyLock"
         tools:targetApi="31">
+        <activity
+            android:name=".BluetoothConnectActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CameraActivity"
+            android:exported="false" />
         <activity
             android:name=".MainMenuActivity"
             android:exported="false" />

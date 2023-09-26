@@ -2,10 +2,20 @@
     <string name="app_name">EasyLock</string>
     <string name="app_logo">App logo</string>
     <string name="main_menu_message">Bienvenido a EasyLock!</string>
+<!--    Mainmenu-->
     <string name="continue_btn">Continuar</string>
     <string name="main_menu_choice">Seleccione una opnción</string>
     <string name="face_icon">Face icon</string>
     <string name="fingerprint_icon">Fingerprint icon</string>
     <string name="exit">Salir</string>
+<!--    Camera-->
+    <string name="predicted">Prediccion: </string>
+    <string name="confidence">Confianza: </string>
+    <string name="picture">Tomar foto</string>
+<!--    Bluetooth-->
+    <string name="connect">Conectar</string>
+    <string name="select_device">Seleccione un dispositivo</string>
+    <string name="no_paired_device">No tiene dispositivos vinculados. \nVincule e intente de nuevo</string>
+    <string name="controls">Controles</string>
 
 </resources>

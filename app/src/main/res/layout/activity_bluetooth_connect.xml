@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BluetoothConnectActivity"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@color/background_color">
+<!--    <Button-->
+<!--        android:id="@+id/btnBluetooth"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/continue_btn"/>-->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_marginVertical="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/select_device"
+        android:textColor="@color/white"
+        android:textSize="22sp"/>
+
+    <ListView
+        android:layout_marginVertical="8dp"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="12dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10.0sp"
+        android:layout_height="wrap_content"
+        android:id="@+id/listDeviceBluetooth"
+        android:visibility="visible"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvSelected"
+        android:textColor="@color/white"/>
+    <!--<TextView
+        android:id="@+id/mac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary"/>
+    <TextView
+        android:id="@+id/stored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/secondary"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="encender"
+        android:id="@+id/btnOn"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="apagar"
+        android:id="@+id/btnOff"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="desconectar"
+        android:id="@+id/btnDisconnect"/>-->
+
+</LinearLayout>
