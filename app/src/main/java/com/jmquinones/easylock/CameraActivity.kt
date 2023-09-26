@@ -50,8 +50,6 @@ class CameraActivity : AppCompatActivity() {
             // Launch camera if we have permission
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//                cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1)
-//                startActivityForResult(cameraIntent, 1)
                 resultLauncher.launch(cameraIntent)
             } else {
                 //Request camera permission if we don't have it.
@@ -61,32 +59,28 @@ class CameraActivity : AppCompatActivity() {
     }
     private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // There are no request codes
             val data: Intent? = result.data
-//            val imageBitmap = data?.extras?.get("data") as Bitmap
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val imageBitmap = data?.extras?.getParcelable("data", Bitmap::class.java) as Bitmap
-//                binding.ivPicture.setImageBitmap(imageBitmap)
                 processImage(imageBitmap)
             } else {
                 val imageBitmap = data?.extras?.get("data") as Bitmap
-//                binding.ivPicture.setImageBitmap(imageBitmap)
                 processImage(imageBitmap)
 
             }
-//            binding.ivPicture.setImageBitmap(imageBitmap)
+
         }
     }
     private fun processImage(imageBitmap: Bitmap) {
-//        binding.ivPicture.setImageBitmap(imageBitmap)
+
         var image: Bitmap = imageBitmap
         val dimension = image.width.coerceAtMost(image.height)
         image = ThumbnailUtils.extractThumbnail(image, dimension, dimension)
-        binding.ivPicture.setImageBitmap(image)
+//        binding.ivPicture.setImageBitmap(image)
         image = Bitmap.createScaledBitmap(image, imageSize, imageSize, false)
         faceDetection(image)
-//        classifyImage(faceDetected)
+
     }
 
     private fun initFaceDetector(){
@@ -101,10 +95,9 @@ class CameraActivity : AppCompatActivity() {
     private fun faceDetection(imageBitmap: Bitmap){
         val image = InputImage.fromBitmap(imageBitmap, 0)
 
-//        var faceDetected : Bitmap
+
         val result = detector.process(image)
             .addOnSuccessListener { faces ->
-                //for (face in faces) {
                     try {
                         if(faces.isNotEmpty()){
                             val face = faces.first()
@@ -112,21 +105,19 @@ class CameraActivity : AppCompatActivity() {
                             Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
                             // crop detected face
                             val faceDetected = Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top)
-//                            binding.ivFace.setImageBitmap(faceDetected)
+
+                            binding.ivPicture.setImageBitmap(faceDetected)
                             classifyImage(faceDetected)
 
                         } else {
-                            Toast.makeText(this@CameraActivity,
-                                "No se encontraron rostors, intente de nuevo.",Toast.LENGTH_LONG).show()
+                            showToastNotification("No se encontraron rostros, intente de nuevo")
+
                         }
                     } catch (e: IllegalArgumentException) {
                         Log.e("error", e.toString())
-                        Toast.makeText(this@CameraActivity,
-                            "Algo salio mal, intente de nuevo.",Toast.LENGTH_LONG).show()
+                        showToastNotification("Algo salio mal, intente de nuevo")
                     }
 
-
-                //}
             }
             .addOnFailureListener { e ->
                Log.e("ERROR", e.stackTraceToString())
@@ -172,9 +163,7 @@ class CameraActivity : AppCompatActivity() {
         }
         val classes = arrayOf("jmqv", "aaron")
         var s = ""
-//        for (i in classes.indices) {
-//            s += String.format("%s: %.1f%%\n", classes[i], confidences[i] * 100)
-//        }
+
         s += String.format("%.1f%%", confidences[maxPos] * 100)
 
         binding.tvPrediction.text = classes[maxPos]
@@ -182,30 +171,23 @@ class CameraActivity : AppCompatActivity() {
 
         // if authentication succed send message to the lock
         if(classes[maxPos] != "unknow" && confidences[maxPos]*100 >= 50){
-//            val macAddress = readMACAddress()
-            Log.i("MAC 1", "FC:A8:9A:00:57:0B"+" "+"FC:A8:9A:00:57:0B".length)
-            Log.i("MAC 2", "'"+MACAddress+"'"+" "+MACAddress.length)
-            Log.i("EQUALS", ("FC:A8:9A:00:57:0B" == MACAddress.trim()).toString())
 
-            println("mac${MACAddress}")
             if(MACAddress.isNotEmpty()){
-                Toast.makeText(this@CameraActivity,
-                    "Exito al autenticar. Abriendo cerradura",Toast.LENGTH_LONG).show()
+                showToastNotification("Exito al autenticar. Abriendo cerradura")
+
                 //TODO: Send message to the arduino boards to open the lock
                 val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@CameraActivity)
 
-                bluetoothModel.connectDeviceAndOpen("FC:A8:9A:00:57:0B")
-//                bluetoothModel.sendMessage("A")
-
+                bluetoothModel.connectDeviceAndOpen(MACAddress)
+                //TODO: Save open attempt to log
 
             } else {
-                Toast.makeText(this@CameraActivity,
-                    "No hay un dispositivo conectado.",Toast.LENGTH_LONG).show()
+                showToastNotification("\"No hay un dispositivo conectado\"")
+
             }
         } else {
-            Toast.makeText(this@CameraActivity,
-                "Error al autenticar.",Toast.LENGTH_LONG).show()
-            // save to log?
+            showToastNotification("Error al autenticar")
+            //TODO: Save open attempt to log
         }
 
 
@@ -221,9 +203,16 @@ class CameraActivity : AppCompatActivity() {
                 "$some\n$text"
             }
         }.trim()
-        Log.i("MAc_----sad-----------------------------------------", MACAddress)
-//        MACAddress = macAddress
+        Log.i("MAC-----------------------------------", MACAddress)
         binding.mac.text = MACAddress
+    }
+
+    private fun showToastNotification(message: String){
+        Toast.makeText(
+            this@CameraActivity,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
 }

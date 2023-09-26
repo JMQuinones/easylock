@@ -15,18 +15,9 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
     var bluetoothManager: BluetoothManager = BluetoothManager.getInstance()
     lateinit var pairedDevices: Collection<BluetoothDevice>
     lateinit var deviceInterface: SimpleBluetoothDeviceInterface
-    var connectionAttemptedOrMade: Boolean = false
+    private var connectionAttemptedOrMade: Boolean = false
 
     init {
-        //        if (bluetoothManager == null) {
-//            // Bluetooth unavailable on this device :( tell the user
-//            Toast.makeText(
-//                this@BluetoothConnectActivity,
-//                "Bluetooth no displonible.",
-//                Toast.LENGTH_LONG
-//            )
-//                .show() // Replace context with your context instance.
-//        }
         loadPairedDevices()
     }
 
@@ -35,7 +26,7 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
     }
 
     @SuppressLint("CheckResult")
-    public fun connectDevice(mac: String) {
+    fun connectDevice(mac: String) {
         if (!connectionAttemptedOrMade) {
             bluetoothManager.openSerialDevice(mac)
                 .subscribeOn(Schedulers.io())
@@ -46,7 +37,7 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
     }
 
     @SuppressLint("CheckResult")
-    public fun connectDeviceAndOpen(mac: String) {
+    fun connectDeviceAndOpen(mac: String) {
 
         bluetoothManager.openSerialDevice(mac)
             .subscribeOn(Schedulers.io())
@@ -55,47 +46,27 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
 
     }
 
-    private fun onConnected(connectedDevice: BluetoothSerialDevice) {
 
-        // You are now connected to this device!
-        // Here you may want to retain an instance to your device:
+    private fun onConnected(connectedDevice: BluetoothSerialDevice) {
         deviceInterface = connectedDevice.toSimpleDeviceInterface()
         MACAddress = connectedDevice.mac
-//        binding.mac.text = MACAddress
         saveMACAddress(MACAddress)
 
-        // Listen to bluetooth events
         deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
-        Toast.makeText(context, "Conectado con exito", Toast.LENGTH_LONG)
-            .show()
-
+        showToastNotification("Conectado con exito")
     }
 
     private fun onConnectedAndOpen(connectedDevice: BluetoothSerialDevice) {
-
-        // You are now connected to this device!
-        // Here you may want to retain an instance to your device:
         deviceInterface = connectedDevice.toSimpleDeviceInterface()
         MACAddress = connectedDevice.mac
-//        binding.mac.text = MACAddress
-        // Listen to bluetooth events
-        deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
-        Toast.makeText(context, "Conectado con exito", Toast.LENGTH_LONG)
-            .show()
+
+        deviceInterface.setListeners(this::onOpenLockMessageReceived, this::onMessageSent, this::onError)
+        showToastNotification("Conectado con exito")
+
         sendMessage("A")
-
-//        disconnect(MACAddress)
-
     }
 
     fun disconnect(mac: String) {
-        // Check we were connected
-//        if (connectionAttemptedOrMade && this::deviceInterface.isInitialized) {
-//            Log.i("Disconnect", "Disconnect")
-//            connectionAttemptedOrMade = false
-//            bluetoothManager.closeDevice(deviceInterface)
-//        }
-//        Log.i("Disconnect", "Disconnect")
         bluetoothManager.closeDevice(mac)
         bluetoothManager.close()
     }
@@ -112,24 +83,29 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
     }
 
     private fun onMessageSent(message: String) {
-        // We sent a message! Handle it here.
-        Toast.makeText(context, "Enviando mensaje...", Toast.LENGTH_LONG)
-            .show() // Replace context with your context instance.
+        showToastNotification("Enviando mensaje...")
     }
 
     private fun onMessageReceived(message: String) {
-        // We received a message! Handle it here.
-        Toast.makeText(
-            context,
-            "Mensaje enviado exitosamente",
-            Toast.LENGTH_LONG
-        )
-            .show() // Replace context with your context instance.
+        showToastNotification("Mensaje enviado exitosamente")
+    }
+
+    private fun onOpenLockMessageReceived(message: String) {
+        showToastNotification("Cerradura abierta exitosamente")
+        disconnect(MACAddress)
     }
 
     private fun onError(error: Throwable) {
         error.message?.let { Log.e("Error", it) }
         Toast.makeText(context, error.message, Toast.LENGTH_LONG)
             .show()
+    }
+
+    private fun showToastNotification(message: String){
+        Toast.makeText(
+            context,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
