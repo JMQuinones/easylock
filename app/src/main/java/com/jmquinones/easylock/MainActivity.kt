@@ -31,12 +31,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListeners() {
         btnContinue.setOnClickListener {
-            val intent = Intent(this, MainMenuActivity::class.java)
-            startActivity(intent)
+            if(mBluetoothAdapter.isEnabled){
+
+                val intent = Intent(this, MainMenuActivity::class.java)
+                startActivity(intent)
+            } else {
+                startActivityForResult(
+                    Intent("android.bluetooth.adapter.action.REQUEST_ENABLE"),
+                    100
+                )
+            }
+
         }
         btnConnect.setOnClickListener {
-            val intent = Intent(this, BluetoothConnectActivity::class.java)
-            startActivity(intent)
+            if(mBluetoothAdapter.isEnabled){
+
+                val intent = Intent(this, BluetoothConnectActivity::class.java)
+                startActivity(intent)
+            } else {
+                startActivityForResult(
+                    Intent("android.bluetooth.adapter.action.REQUEST_ENABLE"),
+                    100
+                )
+            }
         }
     }
 

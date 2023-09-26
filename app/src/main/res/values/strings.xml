@@ -16,5 +16,6 @@
     <string name="connect">Conectar</string>
     <string name="select_device">Seleccione un dispositivo</string>
     <string name="no_paired_device">No tiene dispositivos vinculados. \nVincule e intente de nuevo</string>
+    <string name="controls">Controles</string>
 
 </resources>

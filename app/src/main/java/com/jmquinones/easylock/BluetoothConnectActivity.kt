@@ -21,7 +21,7 @@ import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface
 import com.jmquinones.easylock.databinding.ActivityBluetoothConnectBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-
+import java.lang.Exception
 
 
 class BluetoothConnectActivity : AppCompatActivity() {
@@ -55,15 +55,26 @@ class BluetoothConnectActivity : AppCompatActivity() {
                 connectDevice(pairedDevices.elementAt(i).address)
             }
         }
+        try {
+            if(this::MACAddress.isInitialized){
+                onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+                    // disconnect the BT conecction when pressing the back button
 
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
-            // disconnedt the BT conecction when pressing the back button
-            override fun handleOnBackPressed() {
-//                Toast.makeText(this@BluetoothConnectActivity, "BACK PRESSED", Toast.LENGTH_LONG).show()
-                bluetoothModel.disconnect(MACAddress)
-                finish()
+                    override fun handleOnBackPressed() {
+                        bluetoothModel.disconnect(MACAddress)
+                        finish()
+                    }
+                })
+            } else {
+                onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        finish()
+                    }
+                })
             }
-        })
+        } catch (e: Exception){
+            Log.e("Error on backpress", e.toString())
+        }
 
     }
 
