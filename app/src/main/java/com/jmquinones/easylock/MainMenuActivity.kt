@@ -24,12 +24,14 @@ class MainMenuActivity : AppCompatActivity() {
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: PromptInfo
+    private lateinit var MACAddress: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         val view = binding.root
         checkDeviceHasBiometric()
         initListeners()
+        readMACAddress()
         executor = ContextCompat.getMainExecutor(this)
         biometricPrompt = createBiometricPrompt()
         promptInfo = buildPromtInfo()
@@ -63,35 +65,27 @@ class MainMenuActivity : AppCompatActivity() {
             }
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->{
                 Log.e("MY_APP_TAG", "No biometric features available on this device.")
-                Toast.makeText(this@MainMenuActivity,
-                    "Autenticación biometrica no disponible.",Toast.LENGTH_LONG).show()
+                showToastNotification("Autenticación biometrica no disponible")
+//                Toast.makeText(this@MainMenuActivity,
+//                    "Autenticación biometrica no disponible",Toast.LENGTH_LONG).show()
             }
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->{
                 Log.e("MY_APP_TAG", "Biometric features are currently unavailable.")
-                Toast.makeText(this@MainMenuActivity,
-                    "Autenticación biometrica no disponible.",Toast.LENGTH_LONG).show()
+                showToastNotification("Autenticación biometrica no disponible")
+//                Toast.makeText(this@MainMenuActivity,
+//                    "Autenticación biometrica no disponible",Toast.LENGTH_LONG).show()
 
             }
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
 
                 showDialog()
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q){
-//                    val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
-//                        putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-//                            BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
-//                    }
-//                    startActivityForResult(enrollIntent, 100)
-//                } else{
-//                    val enrollIntent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-//                    startActivityForResult(enrollIntent, 100)
-//                }
-                // Prompts the user to create credentials that your app accepts.
 
             }
             else ->{
                 Log.e("MY_APP_TAG", "Biometric features are currently unavailable.")
-                Toast.makeText(this@MainMenuActivity,
-                    "Autenticación biometrica no disponible.",Toast.LENGTH_LONG).show()
+                showToastNotification("Autenticación biometrica no disponible")
+//                Toast.makeText(this@MainMenuActivity,
+//                    "Autenticación biometrica no disponible",Toast.LENGTH_LONG).show()
 
             }
         }
@@ -134,15 +128,29 @@ class MainMenuActivity : AppCompatActivity() {
         BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
-                Toast.makeText(
-                    this@MainMenuActivity,
-                    "Error al autenticar: $errString", Toast.LENGTH_LONG
-                ).show()
+                showToastNotification("Error al autenticar: $errString")
+//                Toast.makeText(
+//                    this@MainMenuActivity,
+//                    "Error al autenticar: $errString", Toast.LENGTH_LONG
+//                ).show()
             }
 
             // Auth success
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
+                if(MACAddress.isNotEmpty()){
+                    showToastNotification("Exito al autenticar. Abriendo cerradura")
+
+                    //TODO: Send message to the arduino boards to open the lock
+                    val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@MainMenuActivity)
+
+                    bluetoothModel.connectDeviceAndOpen(MACAddress)
+                    //TODO: Save open attempt to log
+
+                } else {
+                    showToastNotification("\"No hay un dispositivo conectado\"")
+
+                }
                 Toast.makeText(
                     this@MainMenuActivity,
                     "Autenticacion exitosa.", Toast.LENGTH_LONG
@@ -157,4 +165,23 @@ class MainMenuActivity : AppCompatActivity() {
                 ).show()
             }
         })
+
+    private fun readMACAddress(){
+        MACAddress=this.openFileInput("device_address"
+
+        ).bufferedReader().useLines { lines ->
+            lines.fold("") { some, text ->
+                "$some\n$text"
+            }
+        }.trim()
+        Log.i("MAC-----------------------------------", MACAddress)
+    }
+
+    private fun showToastNotification(message: String){
+        Toast.makeText(
+            this@MainMenuActivity,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
+    }
 }
