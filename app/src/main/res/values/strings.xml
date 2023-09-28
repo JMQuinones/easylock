@@ -4,12 +4,12 @@
     <string name="main_menu_message">Bienvenido a EasyLock!</string>
 <!--    Mainmenu-->
     <string name="continue_btn">Continuar</string>
-    <string name="main_menu_choice">Seleccione una opnción</string>
+    <string name="main_menu_choice">Seleccione una opción</string>
     <string name="face_icon">Face icon</string>
     <string name="fingerprint_icon">Fingerprint icon</string>
     <string name="exit">Salir</string>
 <!--    Camera-->
-    <string name="predicted">Prediccion: </string>
+    <string name="predicted">Predicción: </string>
     <string name="confidence">Confianza: </string>
     <string name="picture">Tomar foto</string>
 <!--    Bluetooth-->

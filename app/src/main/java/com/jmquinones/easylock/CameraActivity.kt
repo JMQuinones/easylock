@@ -173,7 +173,7 @@ class CameraActivity : AppCompatActivity() {
         if(classes[maxPos] != "unknow" && confidences[maxPos]*100 >= 50){
 
             if(MACAddress.isNotEmpty()){
-                showToastNotification("Exito al autenticar. Abriendo cerradura")
+                showToastNotification("Éxito al autenticar. Abriendo cerradura")
 
                 //TODO: Send message to the arduino boards to open the lock
                 val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@CameraActivity)
@@ -182,7 +182,7 @@ class CameraActivity : AppCompatActivity() {
                 //TODO: Save open attempt to log
 
             } else {
-                showToastNotification("\"No hay un dispositivo conectado\"")
+                showToastNotification("No hay un dispositivo conectado")
 
             }
         } else {
@@ -204,7 +204,7 @@ class CameraActivity : AppCompatActivity() {
             }
         }.trim()
         Log.i("MAC-----------------------------------", MACAddress)
-        binding.mac.text = MACAddress
+//        binding.mac.text = MACAddress
     }
 
     private fun showToastNotification(message: String){

@@ -95,7 +95,7 @@ class MainMenuActivity : AppCompatActivity() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setCancelable(true)
         builder.setTitle("No se encontraron registros biometricos")
-        builder.setMessage("Abrir seguridad para configurar?")
+        builder.setMessage("¿Abrir ajustes para configurar?")
         builder.setPositiveButton("Abrir",
             DialogInterface.OnClickListener { dialog, which -> openSettings()})
         builder.setNegativeButton("Cancelar",
@@ -120,7 +120,6 @@ class MainMenuActivity : AppCompatActivity() {
 
     private fun buildPromtInfo() = PromptInfo.Builder()
         .setTitle("Autenticación biómetrica")
-        .setSubtitle("Coloque su dedo en el sensor")
         .setNegativeButtonText("Cancelar")
         .build()
 
@@ -139,7 +138,7 @@ class MainMenuActivity : AppCompatActivity() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
                 if(MACAddress.isNotEmpty()){
-                    showToastNotification("Exito al autenticar. Abriendo cerradura")
+                    showToastNotification("Éxito al autenticar. Abriendo cerradura")
 
                     //TODO: Send message to the arduino boards to open the lock
                     val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@MainMenuActivity)
@@ -148,7 +147,7 @@ class MainMenuActivity : AppCompatActivity() {
                     //TODO: Save open attempt to log
 
                 } else {
-                    showToastNotification("\"No hay un dispositivo conectado\"")
+                    showToastNotification("No hay un dispositivo conectado")
 
                 }
                 Toast.makeText(
