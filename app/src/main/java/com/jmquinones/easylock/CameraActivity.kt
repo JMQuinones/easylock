@@ -67,7 +67,7 @@ class CameraActivity : AppCompatActivity() {
             } else {
                 val imageBitmap = data?.extras?.get("data") as Bitmap
                 processImage(imageBitmap)
-
+//                classifyImage(imageBitmap)
             }
 
         }
