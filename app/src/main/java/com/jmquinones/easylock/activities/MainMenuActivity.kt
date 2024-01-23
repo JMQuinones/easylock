@@ -1,4 +1,4 @@
-package com.jmquinones.easylock
+package com.jmquinones.easylock.activities
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -15,6 +15,8 @@ import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.core.content.ContextCompat
+import com.jmquinones.easylock.utils.BluetoothUtils
+import com.jmquinones.easylock.R
 import com.jmquinones.easylock.databinding.ActivityMainMenuBinding
 import java.util.concurrent.Executor
 
@@ -143,9 +145,9 @@ class MainMenuActivity : AppCompatActivity() {
                     showToastNotification("Éxito al autenticar. Abriendo cerradura")
 
                     //TODO: Send message to the arduino boards to open the lock
-                    val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@MainMenuActivity)
+                    val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@MainMenuActivity)
 
-                    bluetoothModel.connectDeviceAndOpen(MACAddress)
+                    bluetoothUtils.connectDeviceAndOpen(MACAddress)
                     //TODO: Save open attempt to log
 
                 } else {

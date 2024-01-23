@@ -1,4 +1,4 @@
-package com.jmquinones.easylock
+package com.jmquinones.easylock.activities
 
 import android.Manifest
 import android.app.Activity
@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
-import android.net.MacAddress
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -14,21 +13,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
-import com.jmquinones.easylock.ml.Model1
 import com.jmquinones.easylock.ml.ModelCv
-import com.jmquinones.easylock.ml.ModelUnquant
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.math.log
 
 class CameraActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCameraBinding
@@ -182,9 +177,9 @@ class CameraActivity : AppCompatActivity() {
                 showToastNotification("Éxito al autenticar. Abriendo cerradura")
 
                 //TODO: Send message to the arduino boards to open the lock
-                val bluetoothModel = BluetoothModel(MACAddress=MACAddress,context = this@CameraActivity)
+                val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@CameraActivity)
 
-                bluetoothModel.connectDeviceAndOpen(MACAddress)
+                bluetoothUtils.connectDeviceAndOpen(MACAddress)
                 //TODO: Save open attempt to log
 
             } else {

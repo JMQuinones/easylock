@@ -1,11 +1,11 @@
-package com.jmquinones.easylock
+package com.jmquinones.easylock.activities
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import com.jmquinones.easylock.R
 
 class MainActivity : AppCompatActivity() {
     private lateinit var btnContinue: AppCompatButton

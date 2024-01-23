@@ -1,10 +1,9 @@
-package com.jmquinones.easylock
+package com.jmquinones.easylock.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
 //import android.R
 import android.bluetooth.BluetoothDevice
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -15,12 +14,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.harrysoft.androidbluetoothserial.BluetoothManager
-import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice
-import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface
+import com.jmquinones.easylock.utils.BluetoothUtils
+import com.jmquinones.easylock.R
 import com.jmquinones.easylock.databinding.ActivityBluetoothConnectBinding
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.lang.Exception
 
 
@@ -28,7 +24,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBluetoothConnectBinding
     private lateinit var pairedDevices: Collection<BluetoothDevice>
     private lateinit var MACAddress: String
-    private lateinit var bluetoothModel: BluetoothModel
+    private lateinit var bluetoothUtils: BluetoothUtils
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +32,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
         val view = binding.root
         super.onCreate(savedInstanceState)
         setContentView(view)
-        bluetoothModel= BluetoothModel(context = this@BluetoothConnectActivity)
+        bluetoothUtils= BluetoothUtils(context = this@BluetoothConnectActivity)
 
         loadPairedDevices()
         initListeners()
@@ -61,7 +57,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
                     // disconnect the BT conecction when pressing the back button
 
                     override fun handleOnBackPressed() {
-                        bluetoothModel.disconnect(MACAddress)
+                        bluetoothUtils.disconnect(MACAddress)
                         finish()
                     }
                 })
@@ -80,7 +76,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
 
     private fun loadPairedDevices() {
         checkPermission()
-        pairedDevices = bluetoothModel.pairedDevices
+        pairedDevices = bluetoothUtils.pairedDevices
 
         val arrayListDevice: ArrayList<String> = ArrayList<String>()
         if (pairedDevices.isEmpty()) {
@@ -115,7 +111,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     private fun connectDevice(mac: String) {
         Log.d("MAC", mac)
         MACAddress = mac
-        bluetoothModel.connectDevice(mac)
+        bluetoothUtils.connectDevice(mac)
     }
 
 

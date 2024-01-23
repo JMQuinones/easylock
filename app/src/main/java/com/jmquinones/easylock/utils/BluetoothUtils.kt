@@ -1,4 +1,4 @@
-package com.jmquinones.easylock
+package com.jmquinones.easylock.utils
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
@@ -11,7 +11,7 @@ import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
-class BluetoothModel(var MACAddress: String = "", val context: Context) {
+class BluetoothUtils(var MACAddress: String = "", val context: Context) {
     var bluetoothManager: BluetoothManager = BluetoothManager.getInstance()
     lateinit var pairedDevices: Collection<BluetoothDevice>
     lateinit var deviceInterface: SimpleBluetoothDeviceInterface
