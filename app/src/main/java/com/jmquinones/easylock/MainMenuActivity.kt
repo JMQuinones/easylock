@@ -56,13 +56,14 @@ class MainMenuActivity : AppCompatActivity() {
     private fun checkDeviceHasBiometric() {
         val biometricManager = BiometricManager.from(this)
         when (biometricManager.canAuthenticate(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)) {
+            // El dispositivo permite el reconocimiento biometrico
             BiometricManager.BIOMETRIC_SUCCESS ->{
-
                 Log.d("MY_APP_TAG", "App can authenticate using biometrics.")
                 binding.cvFinger.isClickable = true
                 binding.cvFinger.isFocusable = true
                 binding.imgFinger.setImageResource(R.drawable.ic_fingerprint_24)
             }
+            // El dispositivo no permite el reconocimiento biometrico
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->{
                 Log.e("MY_APP_TAG", "No biometric features available on this device.")
                 showToastNotification("Autenticación biometrica no disponible")
@@ -76,6 +77,7 @@ class MainMenuActivity : AppCompatActivity() {
 //                    "Autenticación biometrica no disponible",Toast.LENGTH_LONG).show()
 
             }
+            // Permite pero no hay registros biometricos
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
 
                 showDialog()

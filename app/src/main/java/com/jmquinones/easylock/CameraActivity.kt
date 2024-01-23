@@ -22,6 +22,7 @@ import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.Model1
+import com.jmquinones.easylock.ml.ModelCv
 import com.jmquinones.easylock.ml.ModelUnquant
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
@@ -98,26 +99,30 @@ class CameraActivity : AppCompatActivity() {
 
         val result = detector.process(image)
             .addOnSuccessListener { faces ->
-                    try {
-                        if(faces.isNotEmpty()){
-                            val face = faces.first()
-                            val bounds = face.boundingBox
-                            Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
-                            // crop detected face
-                            val faceDetected = Bitmap.createBitmap(imageBitmap,bounds.left,bounds.top,bounds.right-bounds.left,bounds.bottom-bounds.top)
+                try {
+                    if(faces.isNotEmpty()){
+                        /*val face = faces.first()
+                        val bounds = face.boundingBox
+                        Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
+                        // crop detected face
+                        val faceDetected = Bitmap.createBitmap(
+                            imageBitmap,
+                            bounds.left,bounds.top,
+                            bounds.right-bounds.left,
+                            bounds.bottom-bounds.top
+                        )*/
 
-                            binding.ivPicture.setImageBitmap(faceDetected)
-                            classifyImage(faceDetected)
+                        binding.ivPicture.setImageBitmap(imageBitmap)
+                        classifyImage(imageBitmap)
 
-                        } else {
-                            showToastNotification("No se encontraron rostros, intente de nuevo")
+                    } else {
+                        showToastNotification("No se encontraron rostros, intente de nuevo")
 
-                        }
-                    } catch (e: IllegalArgumentException) {
-                        Log.e("error", e.toString())
-                        showToastNotification("Algo salio mal, intente de nuevo")
                     }
-
+                } catch (e: IllegalArgumentException) {
+                    Log.e("error", e.toString())
+                    showToastNotification("Algo salio mal, intente de nuevo")
+                }
             }
             .addOnFailureListener { e ->
                Log.e("ERROR", e.stackTraceToString())
@@ -126,7 +131,8 @@ class CameraActivity : AppCompatActivity() {
 
     private fun classifyImage(image: Bitmap?) {
 //        val model = Model1.newInstance(applicationContext)
-        val model = ModelUnquant.newInstance(applicationContext)
+//        val model = ModelUnquant.newInstance(applicationContext)
+        val model = ModelCv.newInstance(applicationContext)
 
         // Creates inputs for reference.
         val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
@@ -161,7 +167,7 @@ class CameraActivity : AppCompatActivity() {
                 maxPos = i
             }
         }
-        val classes = arrayOf("jmqv", "aaron")
+        val classes = arrayOf("positive", "negative")
         var s = ""
 
         s += String.format("%.1f%%", confidences[maxPos] * 100)
@@ -170,7 +176,7 @@ class CameraActivity : AppCompatActivity() {
         binding.tvConfidence.text = s
 
         // if authentication succed send message to the lock
-        if(classes[maxPos] != "unknow" && confidences[maxPos]*100 >= 50){
+        if(classes[maxPos] != "negative" && confidences[maxPos]*100 >= 75){
 
             if(MACAddress.isNotEmpty()){
                 showToastNotification("Éxito al autenticar. Abriendo cerradura")

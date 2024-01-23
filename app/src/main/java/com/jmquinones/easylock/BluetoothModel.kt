@@ -38,12 +38,10 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
 
     @SuppressLint("CheckResult")
     fun connectDeviceAndOpen(mac: String) {
-
         bluetoothManager.openSerialDevice(mac)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::onConnectedAndOpen, this::onError)
-
     }
 
 
@@ -51,7 +49,6 @@ class BluetoothModel(var MACAddress: String = "", val context: Context) {
         deviceInterface = connectedDevice.toSimpleDeviceInterface()
         MACAddress = connectedDevice.mac
         saveMACAddress(MACAddress)
-
         deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onError)
         showToastNotification("Conectado con exito")
     }

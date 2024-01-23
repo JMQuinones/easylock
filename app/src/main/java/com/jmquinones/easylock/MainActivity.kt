@@ -10,6 +10,7 @@ import androidx.appcompat.widget.AppCompatButton
 class MainActivity : AppCompatActivity() {
     private lateinit var btnContinue: AppCompatButton
     private lateinit var btnConnect: AppCompatButton
+    private lateinit var btnExit: AppCompatButton
     val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
 
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private fun initComponents() {
         btnContinue = findViewById(R.id.btnContinue)
         btnConnect = findViewById(R.id.btnConnect)
+        btnExit = findViewById(R.id.btnExit)
     }
 
     private fun initListeners() {
@@ -54,6 +56,10 @@ class MainActivity : AppCompatActivity() {
                     100
                 )
             }
+        }
+
+        btnExit.setOnClickListener{
+            this.finishAffinity();
         }
     }
 
