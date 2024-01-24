@@ -7,6 +7,7 @@
     <string name="main_menu_choice">Seleccione una opción</string>
     <string name="face_icon">Face icon</string>
     <string name="fingerprint_icon">Fingerprint icon</string>
+    <string name="logs_icon">Logs icon</string>
     <string name="exit">Salir</string>
 <!--    Camera-->
     <string name="predicted">Predicción: </string>

@@ -20,6 +20,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.ModelCv
+import com.jmquinones.easylock.utils.LogUtils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
@@ -181,6 +182,7 @@ class CameraActivity : AppCompatActivity() {
 
                 bluetoothUtils.connectDeviceAndOpen(MACAddress)
                 //TODO: Save open attempt to log
+                LogUtils.logError("Open Attempt", "Exito", this@CameraActivity)
 
             } else {
                 showToastNotification("No hay un dispositivo conectado")
@@ -189,6 +191,8 @@ class CameraActivity : AppCompatActivity() {
         } else {
             showToastNotification("Error al autenticar")
             //TODO: Save open attempt to log
+            LogUtils.logError("Open Attempt", "Error", this@CameraActivity)
+
         }
 
 
