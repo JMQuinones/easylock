@@ -18,5 +18,6 @@
     <string name="select_device">Seleccione un dispositivo</string>
     <string name="no_paired_device">No tiene dispositivos vinculados. \nVincule e intente de nuevo</string>
     <string name="controls">Controles</string>
+    <string name="intentos_de_apertura">Intentos de apertura</string>
 
 </resources>
