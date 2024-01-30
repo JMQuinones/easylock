@@ -4,8 +4,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jmquinones.easylock.R
-import com.jmquinones.easylock.adapters.LogsAdapter
+import com.jmquinones.easylock.adapters.AdapterClass
+//import com.jmquinones.easylock.adapters.LogsAdapter
 import com.jmquinones.easylock.databinding.ActivityLogsBinding
 import com.jmquinones.easylock.models.LogAttempt
 import com.jmquinones.easylock.utils.LogUtils
@@ -13,7 +16,8 @@ import java.io.File
 
 class LogsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogsBinding
-    private var logsLists: MutableList<LogAttempt> = mutableListOf<LogAttempt>()
+    //private lateinit var recyclerView: RecyclerView
+    private lateinit var logsLists: ArrayList<LogAttempt>
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityLogsBinding.inflate(layoutInflater)
         val view = binding.root
@@ -30,14 +34,16 @@ class LogsActivity : AppCompatActivity() {
             R.layout.custom_list,
             arrayListDevice
         )*/
+        binding.rvLogs.layoutManager = LinearLayoutManager(this)
+        logsLists = arrayListOf()
         loadLogs()
         println(logsLists)
-        val data = arrayOf("Item 1", "Item 2", "Item 3")
+        /*val data = arrayOf("Item 1", "Item 2", "Item 3")
         val textColor = ContextCompat.getColor(this@LogsActivity, R.color.primary) // Replace with your color resource
 
         val adapter = LogsAdapter(this, android.R.layout.simple_list_item_1, data, textColor)
 
-        binding.lvLogs.adapter = adapter
+        binding.lvLogs.adapter = adapter*/
 
 
     }
@@ -47,9 +53,11 @@ class LogsActivity : AppCompatActivity() {
         try {
             logs.forEachLine {
                 println(it)
-                val logValue = it.split("#")
-                logsLists += LogAttempt(logValue[0], logValue[1])
+                val logValues = it.split("#")
+                logsLists.add(LogAttempt(logValues[0], logValues[1]))
             }
+            binding.rvLogs.adapter = AdapterClass(logsLists)
+
         } catch (e: Exception){
             e.printStackTrace()
         }

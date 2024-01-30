@@ -1,26 +1,54 @@
 package com.jmquinones.easylock.adapters
 
-import android.content.Context
+
+
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.jmquinones.easylock.R
+import com.jmquinones.easylock.models.LogAttempt
 
-class LogsAdapter(context: Context, resource: Int, objects: Array<String>, private val textColor: Int) :
-    ArrayAdapter<String>(context, resource, objects) {
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = super.getView(position, convertView, parent)
-
-        // Get the TextView from the view
-        val textView: TextView = view.findViewById(android.R.id.text1)
-
-        // Set the text color
-        if (textView.text.toString() == "Item 1"){
-
-            textView.setTextColor(textColor)
-        }
-
-        return view
+class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Adapter<AdapterClass.ViewHolderClass>() {
+    class ViewHolderClass(itemView: View): RecyclerView.ViewHolder(itemView) {
+        val rvType:TextView = itemView.findViewById(R.id.tvType)
+        val rvTimeStamp:TextView = itemView.findViewById(R.id.tvTimestamp)
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderClass {
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.log_item, parent, false)
+        return ViewHolderClass(itemView)
+    }
+    override fun onBindViewHolder(holder: ViewHolderClass, position: Int) {
+        val currentItem = dataList[position]
+        holder.rvType.text = currentItem.description
+        holder.rvTimeStamp.text = currentItem.timestamp
+
+    }
+    override fun getItemCount(): Int {
+        return dataList.size
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
