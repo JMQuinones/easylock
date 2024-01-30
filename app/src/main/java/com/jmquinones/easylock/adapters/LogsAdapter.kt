@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.jmquinones.easylock.R
 import com.jmquinones.easylock.models.LogAttempt
@@ -25,6 +26,13 @@ class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Ad
         val currentItem = dataList[position]
         holder.rvType.text = currentItem.description
         holder.rvTimeStamp.text = currentItem.timestamp
+        if (currentItem.description == "Exito"){
+            val textColor = ContextCompat.getColor(holder.rvType.context, R.color.success)
+            holder.rvType.setTextColor(textColor)
+        } else {
+            val textColor = ContextCompat.getColor(holder.rvType.context, R.color.error)
+            holder.rvType.setTextColor(textColor)
+        }
 
     }
     override fun getItemCount(): Int {

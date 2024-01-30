@@ -8,6 +8,10 @@
     <color name="tertiary">#bfa5e0</color>
     <color name="background_color">#110a17</color>
 
+    <color name="success">#4CAF50</color>
+    <color name="error">#E91E1E</color>
+
+
     <color name="dark_gray">#27232c</color>
     <color name="light_gray">#706d74</color>
 
