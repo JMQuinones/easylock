@@ -24,12 +24,13 @@ class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Ad
     }
     override fun onBindViewHolder(holder: ViewHolderClass, position: Int) {
         val currentItem = dataList[position]
-        holder.rvType.text = currentItem.description
         holder.rvTimeStamp.text = currentItem.timestamp
         if (currentItem.description == "Exito"){
+            holder.rvType.text = holder.rvType.context.getString(R.string.open_success)
             val textColor = ContextCompat.getColor(holder.rvType.context, R.color.success)
             holder.rvType.setTextColor(textColor)
         } else {
+            holder.rvType.text = holder.rvType.context.getString(R.string.open_failure)
             val textColor = ContextCompat.getColor(holder.rvType.context, R.color.error)
             holder.rvType.setTextColor(textColor)
         }

@@ -19,5 +19,7 @@
     <string name="no_paired_device">No tiene dispositivos vinculados. \nVincule e intente de nuevo</string>
     <string name="controls">Controles</string>
     <string name="intentos_de_apertura">Intentos de apertura</string>
+    <string name="open_success">\u2022 Apertura exitosa</string>
+    <string name="open_failure">\u2022 Apertura fallida</string>
 
 </resources>

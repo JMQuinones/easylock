@@ -28,24 +28,10 @@ class LogsActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-
-        /*val adapter = ArrayAdapter(
-            this,
-            R.layout.custom_list,
-            arrayListDevice
-        )*/
         binding.rvLogs.layoutManager = LinearLayoutManager(this)
         logsLists = arrayListOf()
         loadLogs()
         println(logsLists)
-        /*val data = arrayOf("Item 1", "Item 2", "Item 3")
-        val textColor = ContextCompat.getColor(this@LogsActivity, R.color.primary) // Replace with your color resource
-
-        val adapter = LogsAdapter(this, android.R.layout.simple_list_item_1, data, textColor)
-
-        binding.lvLogs.adapter = adapter*/
-
-
     }
 
     private fun loadLogs(){
@@ -61,10 +47,7 @@ class LogsActivity : AppCompatActivity() {
         } catch (e: Exception){
             e.printStackTrace()
         }
-
     }
-
-
 }
 
 
