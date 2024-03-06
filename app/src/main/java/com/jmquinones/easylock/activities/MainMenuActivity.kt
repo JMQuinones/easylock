@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.R
 import com.jmquinones.easylock.databinding.ActivityMainMenuBinding
+import com.jmquinones.easylock.utils.LogUtils
 import java.util.concurrent.Executor
 
 
@@ -147,13 +148,9 @@ class MainMenuActivity : AppCompatActivity() {
                 super.onAuthenticationSucceeded(result)
                 if(MACAddress.isNotEmpty()){
                     showToastNotification("Éxito al autenticar. Abriendo cerradura")
-
-                    //TODO: Send message to the arduino boards to open the lock
                     val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@MainMenuActivity)
-
                     bluetoothUtils.connectDeviceAndOpen(MACAddress)
-                    //TODO: Save open attempt to log
-
+                    LogUtils.logError("Open Attempt", "Exito", this@MainMenuActivity)
                 } else {
                     showToastNotification("No hay un dispositivo conectado")
 
@@ -170,6 +167,8 @@ class MainMenuActivity : AppCompatActivity() {
                     this@MainMenuActivity,
                     "Error al autenticar.", Toast.LENGTH_LONG
                 ).show()
+                LogUtils.logError("Open Attempt", "Error", this@MainMenuActivity)
+
             }
         })
 
