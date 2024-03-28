@@ -20,6 +20,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.ModelCv
+import com.jmquinones.easylock.ml.ModelUnquant
 import com.jmquinones.easylock.utils.LogUtils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
@@ -97,7 +98,7 @@ class CameraActivity : AppCompatActivity() {
             .addOnSuccessListener { faces ->
                 try {
                     if(faces.isNotEmpty()){
-                        /*val face = faces.first()
+                        val face = faces.first()
                         val bounds = face.boundingBox
                         Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
                         // crop detected face
@@ -106,10 +107,10 @@ class CameraActivity : AppCompatActivity() {
                             bounds.left,bounds.top,
                             bounds.right-bounds.left,
                             bounds.bottom-bounds.top
-                        )*/
+                        )
 
-                        binding.ivPicture.setImageBitmap(imageBitmap)
-                        classifyImage(imageBitmap)
+                        binding.ivPicture.setImageBitmap(faceDetected)
+                        classifyImage(faceDetected)
 
                     } else {
                         showToastNotification("No se encontraron rostros, intente de nuevo")
@@ -127,8 +128,8 @@ class CameraActivity : AppCompatActivity() {
 
     private fun classifyImage(image: Bitmap?) {
 //        val model = Model1.newInstance(applicationContext)
-//        val model = ModelUnquant.newInstance(applicationContext)
-        val model = ModelCv.newInstance(applicationContext)
+        val model = ModelUnquant.newInstance(applicationContext)
+//        val model = ModelCv.newInstance(applicationContext)
 
         // Creates inputs for reference.
         val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
