@@ -173,14 +173,20 @@ class MainMenuActivity : AppCompatActivity() {
         })
 
     private fun readMACAddress(){
-        MACAddress=this.openFileInput("device_address"
+        try {
 
-        ).bufferedReader().useLines { lines ->
-            lines.fold("") { some, text ->
-                "$some\n$text"
-            }
-        }.trim()
-        Log.i("MAC-----------------------------------", MACAddress)
+            MACAddress=this.openFileInput("device_address"
+
+            ).bufferedReader().useLines { lines ->
+                lines.fold("") { some, text ->
+                    "$some\n$text"
+                }
+            }.trim()
+            Log.i("MAC-------------", MACAddress)
+        }catch (e: Exception){
+            Log.e("MAc address error", e.toString())
+            showToastNotification("No hay ningun dispositivo vinculado.")
+        }
     }
 
     private fun showToastNotification(message: String){

@@ -20,7 +20,6 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.ModelCv
-import com.jmquinones.easylock.ml.ModelUnquant
 import com.jmquinones.easylock.utils.LogUtils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
@@ -81,6 +80,10 @@ class CameraActivity : AppCompatActivity() {
 
     }
 
+    private fun resizeImage(imageBitmap: Bitmap, xSize: Int, ySize: Int): Bitmap? {
+        return Bitmap.createScaledBitmap(imageBitmap, xSize, ySize, false)
+    }
+
     private fun initFaceDetector(){
         val options = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -128,13 +131,13 @@ class CameraActivity : AppCompatActivity() {
 
     private fun classifyImage(image: Bitmap?) {
 //        val model = Model1.newInstance(applicationContext)
-        val model = ModelUnquant.newInstance(applicationContext)
-//        val model = ModelCv.newInstance(applicationContext)
+//        val model = ModelUnquant.newInstance(applicationContext)
+        val model = ModelCv.newInstance(applicationContext)
 
         // Creates inputs for reference.
-        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 224, 224, 3), DataType.FLOAT32)
+        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, imageSize, imageSize, 3), DataType.FLOAT32)
 
-        val byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3)
+        /*val byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3)
         byteBuffer.order(ByteOrder.nativeOrder())
 
         val intValues = IntArray(imageSize * imageSize)
@@ -148,7 +151,8 @@ class CameraActivity : AppCompatActivity() {
                 byteBuffer.putFloat((`val` shr 8 and 0xFF) * (1f / 255f))
                 byteBuffer.putFloat((`val` and 0xFF) * (1f / 255f))
             }
-        }
+        }*/
+        val byteBuffer = getByteArray(image)
         inputFeature0.loadBuffer(byteBuffer)
 
         // Runs model inference and gets result.
@@ -195,10 +199,28 @@ class CameraActivity : AppCompatActivity() {
             LogUtils.logError("Open Attempt", "Error", this@CameraActivity)
 
         }
-
-
         // Releases model resources if no longer used.
         model.close()
+    }
+
+    private fun getByteArray(image: Bitmap?): ByteBuffer {
+        val byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3)
+        byteBuffer.order(ByteOrder.nativeOrder())
+
+        val intValues = IntArray(imageSize * imageSize)
+        image!!.getPixels(intValues, 0, image.width, 0, 0, image.width, image.height)
+        var pixel = 0
+//        Get RGB values from the bitmap
+        for (i in 0 until imageSize) {
+            for (j in 0 until imageSize) {
+                val pixelValue = intValues[pixel++] // RGB
+                byteBuffer.putFloat((pixelValue shr 16 and 0xFF) * (1f / 255f))
+                byteBuffer.putFloat((pixelValue shr 8 and 0xFF) * (1f / 255f))
+                byteBuffer.putFloat((pixelValue and 0xFF) * (1f / 255f))
+            }
+        }
+
+        return byteBuffer
     }
 
     private fun readMACAddress(){
