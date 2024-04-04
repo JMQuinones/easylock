@@ -126,6 +126,8 @@ class CameraActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                Log.e("ERROR", e.stackTraceToString())
+               showToastNotification("Algo salio mal, intente de nuevo")
+
             }
     }
 
@@ -191,7 +193,6 @@ class CameraActivity : AppCompatActivity() {
 
             } else {
                 showToastNotification("No hay un dispositivo conectado")
-
             }
         } else {
             showToastNotification("Error al autenticar")

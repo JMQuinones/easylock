@@ -54,8 +54,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
         try {
             if(this::MACAddress.isInitialized){
                 onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
-                    // disconnect the BT conecction when pressing the back button
-
+                    // disconnect the BT connection when pressing the back button
                     override fun handleOnBackPressed() {
                         bluetoothUtils.disconnect(MACAddress)
                         finish()

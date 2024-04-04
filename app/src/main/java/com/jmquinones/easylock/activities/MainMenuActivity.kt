@@ -185,7 +185,8 @@ class MainMenuActivity : AppCompatActivity() {
             Log.i("MAC-------------", MACAddress)
         }catch (e: Exception){
             Log.e("MAc address error", e.toString())
-            showToastNotification("No hay ningun dispositivo vinculado.")
+            showToastNotification(resources.getString(R.string.no_paired_device))
+
         }
     }
 
