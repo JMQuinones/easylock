@@ -21,7 +21,7 @@ class LogUtils: Application() {
             writeToFile(message, context)
         }
 
-        fun writeToFile(message: String, context: Context) {
+        private fun writeToFile(message: String, context: Context) {
             try {
                 // Create a log file
                 val logFile = getLogFile(context)
