@@ -13,10 +13,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.mediapipe.framework.image.BitmapImageBuilder
+import com.google.mediapipe.tasks.components.containers.Category
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.imageclassifier.ImageClassifier
+import com.google.mediapipe.tasks.vision.imageclassifier.ImageClassifier.ImageClassifierOptions
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.jmquinones.easylock.R
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.ModelCv
@@ -28,7 +35,7 @@ import java.nio.ByteOrder
 
 class CameraActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCameraBinding
-    private var imageSize:Int =224
+    private var imageSize: Int = 224
     private lateinit var detector: FaceDetector
     private lateinit var MACAddress: String
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +49,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        binding.btnPicture.setOnClickListener{
+        binding.btnPicture.setOnClickListener {
 
             // Launch camera if we have permission
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -54,21 +61,25 @@ class CameraActivity : AppCompatActivity() {
             }
         }
     }
-    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val imageBitmap = data?.extras?.getParcelable("data", Bitmap::class.java) as Bitmap
-                processImage(imageBitmap)
-            } else {
-                val imageBitmap = data?.extras?.get("data") as Bitmap
-                processImage(imageBitmap)
+    private var resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val imageBitmap =
+                        data?.extras?.getParcelable("data", Bitmap::class.java) as Bitmap
+                    processImage(imageBitmap)
+                } else {
+                    val imageBitmap = data?.extras?.get("data") as Bitmap
+                    processImage(imageBitmap)
 //                classifyImage(imageBitmap)
-            }
+                }
 
+            }
         }
-    }
+
     private fun processImage(imageBitmap: Bitmap) {
 
         var image: Bitmap = imageBitmap
@@ -84,7 +95,7 @@ class CameraActivity : AppCompatActivity() {
         return Bitmap.createScaledBitmap(imageBitmap, xSize, ySize, false)
     }
 
-    private fun initFaceDetector(){
+    private fun initFaceDetector() {
         val options = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
@@ -93,23 +104,27 @@ class CameraActivity : AppCompatActivity() {
             .build()
         detector = FaceDetection.getClient(options)
     }
-    private fun faceDetection(imageBitmap: Bitmap){
+
+    private fun faceDetection(imageBitmap: Bitmap) {
         val image = InputImage.fromBitmap(imageBitmap, 0)
 
 
         val result = detector.process(image)
             .addOnSuccessListener { faces ->
                 try {
-                    if(faces.isNotEmpty()){
+                    if (faces.isNotEmpty()) {
                         val face = faces.first()
                         val bounds = face.boundingBox
-                        Log.d("bounds", "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}")
+                        Log.d(
+                            "bounds",
+                            "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}"
+                        )
                         // crop detected face
                         val faceDetected = Bitmap.createBitmap(
                             imageBitmap,
-                            bounds.left,bounds.top,
-                            bounds.right-bounds.left,
-                            bounds.bottom-bounds.top
+                            bounds.left, bounds.top,
+                            bounds.right - bounds.left,
+                            bounds.bottom - bounds.top
                         )
 
                         binding.ivPicture.setImageBitmap(faceDetected)
@@ -125,35 +140,74 @@ class CameraActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { e ->
-               Log.e("ERROR", e.stackTraceToString())
-               showToastNotification("Algo salio mal, intente de nuevo")
+                Log.e("ERROR", e.stackTraceToString())
+                showToastNotification("Algo salio mal, intente de nuevo")
 
             }
     }
 
     private fun classifyImage(image: Bitmap?) {
+
+        val imageClassifier = createTask();
+        val mpImage = BitmapImageBuilder(image).build()
+        val classifierResult = imageClassifier.classify(mpImage)
+        val results = classifierResult.classificationResult().classifications()[0]
+        var maxScore = 0f
+        var maxIndex = 0
+
+        for ((index, categories) in results.categories().withIndex()) {
+            if (categories.score() >= maxScore) {
+                maxIndex = index
+                maxScore = categories.score()
+            }
+            /*Log.e(
+                "Res", "Category: ${categories.categoryName()} " +
+                        ", Display name: ${categories.displayName()}" +
+                        ", Score: ${categories.score()}" +
+                        ", Index: ${categories.index()}"
+            )*/
+        }
+        Log.i("Max Index", "" + maxIndex)
+
+        val predictedResult = results.categories()[maxIndex]
+        Log.i("Predicted result", predictedResult.toString())
+
+        val predictionScore = String.format("%.1f%%", results.categories()[maxIndex].score() * 100)
+
+        binding.tvPrediction.text = predictedResult.categoryName()
+        binding.tvConfidence.text = predictionScore
+
+        // if authentication succeed send message to the lock
+        if (predictedResult.categoryName() != "negative" && predictedResult.score() * 100 >= 75) {
+            if (this::MACAddress.isInitialized && MACAddress.isNotEmpty()) {
+                showToastNotification("Éxito al autenticar. Abriendo cerradura")
+                //TODO: Send message to the arduino boards to open the lock
+                val bluetoothUtils =
+                    BluetoothUtils(MACAddress = MACAddress, context = this@CameraActivity)
+
+                bluetoothUtils.connectDeviceAndOpen(MACAddress)
+                //TODO: Save open attempt to log
+                LogUtils.logError("Open Attempt", "Exito", this@CameraActivity)
+
+            } else {
+                showToastNotification("No hay un dispositivo conectado")
+            }
+        } else {
+            showToastNotification("Error al autenticar")
+            //TODO: Save open attempt to log
+            LogUtils.logError("Open Attempt", "Error", this@CameraActivity)
+
+        }
+    }
+
+    private fun classifyImageOld(image: Bitmap?) {
 //        val model = Model1.newInstance(applicationContext)
 //        val model = ModelUnquant.newInstance(applicationContext)
         val model = ModelCv.newInstance(applicationContext)
 
         // Creates inputs for reference.
-        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, imageSize, imageSize, 3), DataType.FLOAT32)
-
-        /*val byteBuffer = ByteBuffer.allocateDirect(4 * imageSize * imageSize * 3)
-        byteBuffer.order(ByteOrder.nativeOrder())
-
-        val intValues = IntArray(imageSize * imageSize)
-        image!!.getPixels(intValues, 0, image.width, 0, 0, image.width, image.height)
-        var pixel = 0
-//        Get RGB values from the bitmap
-        for (i in 0 until imageSize) {
-            for (j in 0 until imageSize) {
-                val `val` = intValues[pixel++] // RGB
-                byteBuffer.putFloat((`val` shr 16 and 0xFF) * (1f / 255f))
-                byteBuffer.putFloat((`val` shr 8 and 0xFF) * (1f / 255f))
-                byteBuffer.putFloat((`val` and 0xFF) * (1f / 255f))
-            }
-        }*/
+        val inputFeature0 =
+            TensorBuffer.createFixedSize(intArrayOf(1, imageSize, imageSize, 3), DataType.FLOAT32)
         val byteBuffer = getByteArray(image)
         inputFeature0.loadBuffer(byteBuffer)
 
@@ -179,13 +233,14 @@ class CameraActivity : AppCompatActivity() {
         binding.tvConfidence.text = s
 
         // if authentication succed send message to the lock
-        if(classes[maxPos] != "negative" && confidences[maxPos]*100 >= 75){
+        if (classes[maxPos] != "negative" && confidences[maxPos] * 100 >= 75) {
 
-            if(MACAddress.isNotEmpty()){
+            if (MACAddress.isNotEmpty()) {
                 showToastNotification("Éxito al autenticar. Abriendo cerradura")
 
                 //TODO: Send message to the arduino boards to open the lock
-                val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@CameraActivity)
+                val bluetoothUtils =
+                    BluetoothUtils(MACAddress = MACAddress, context = this@CameraActivity)
 
                 bluetoothUtils.connectDeviceAndOpen(MACAddress)
                 //TODO: Save open attempt to log
@@ -202,6 +257,17 @@ class CameraActivity : AppCompatActivity() {
         }
         // Releases model resources if no longer used.
         model.close()
+    }
+
+    private fun createTask(): ImageClassifier {
+        val options = ImageClassifierOptions.builder()
+            .setBaseOptions(
+                BaseOptions.builder().setModelAssetPath("model.tflite").build()
+            )
+            .setRunningMode(RunningMode.IMAGE)
+            .setMaxResults(5)
+            .build()
+        return ImageClassifier.createFromOptions(applicationContext, options)
     }
 
     private fun getByteArray(image: Bitmap?): ByteBuffer {
@@ -224,19 +290,22 @@ class CameraActivity : AppCompatActivity() {
         return byteBuffer
     }
 
-    private fun readMACAddress(){
-         MACAddress=this.openFileInput("device_address"
-
-        ).bufferedReader().useLines { lines ->
-            lines.fold("") { some, text ->
-                "$some\n$text"
-            }
-        }.trim()
-        Log.i("MAC-----------------------------------", MACAddress)
-//        binding.mac.text = MACAddress
+    private fun readMACAddress() {
+        try {
+            MACAddress=this.openFileInput("device_address")
+                .bufferedReader().useLines { lines ->
+                lines.fold("") { some, text ->
+                    "$some\n$text"
+                }
+            }.trim()
+            Log.i("MAC-------------", MACAddress)
+        }catch (e: Exception){
+            Log.e("MAC address error", e.toString())
+            showToastNotification(resources.getString(R.string.no_paired_device))
+        }
     }
 
-    private fun showToastNotification(message: String){
+    private fun showToastNotification(message: String) {
         Toast.makeText(
             this@CameraActivity,
             message,

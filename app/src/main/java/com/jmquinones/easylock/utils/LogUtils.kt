@@ -15,7 +15,7 @@ import java.util.Locale
 class LogUtils: Application() {
 
     companion object {
-
+        // TODO change to a proper db, maybe sqlite
         fun logError(tag:String, message: String, context: Context) {
             Log.d(tag, message)
             writeToFile(message, context)

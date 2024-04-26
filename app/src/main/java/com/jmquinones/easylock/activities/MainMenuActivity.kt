@@ -174,7 +174,6 @@ class MainMenuActivity : AppCompatActivity() {
 
     private fun readMACAddress(){
         try {
-
             MACAddress=this.openFileInput("device_address"
 
             ).bufferedReader().useLines { lines ->
@@ -186,7 +185,6 @@ class MainMenuActivity : AppCompatActivity() {
         }catch (e: Exception){
             Log.e("MAc address error", e.toString())
             showToastNotification(resources.getString(R.string.no_paired_device))
-
         }
     }
 
