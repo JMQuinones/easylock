@@ -50,7 +50,7 @@ class LogsActivity : AppCompatActivity() {
             logs.forEachLine {
                 println(it)
                 val logValues = it.split("#")
-                logsLists.add(LogAttempt(logValues[0], logValues[1]))
+                logsLists.add(LogAttempt(logValues[0], logValues[1], logValues[2]))
             }
             binding.rvLogs.adapter = AdapterClass(logsLists)
 

@@ -22,5 +22,6 @@
     <string name="open_success">\u2022 Apertura exitosa</string>
     <string name="open_failure">\u2022 Apertura fallida</string>
     <string name="delete_logs">Eliminar registros</string>
+    <string name="dash">-</string>
 
 </resources>

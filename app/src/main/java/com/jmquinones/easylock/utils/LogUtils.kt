@@ -18,12 +18,12 @@ class LogUtils: Application() {
 
     companion object {
         // TODO change to a proper db, maybe sqlite
-        fun logError(tag:String, message: String, context: Context) {
+        fun logError(tag:String, message: String, openType:String, context: Context) {
             Log.d(tag, message)
-            writeToFile(message, context)
+            writeToFile(message, openType, context)
         }
 
-        private fun writeToFile(message: String, context: Context) {
+        private fun writeToFile(message: String, openType:String, context: Context) {
             try {
                 // Create a log file
                 val logFile = getLogFile(context)
@@ -34,7 +34,7 @@ class LogUtils: Application() {
 
                 // Write the log entry to the file
                 val logEntry = """
-                   $timestamp#$message
+                   $timestamp#$message#$openType
                    """.trimIndent()
 
                 val updatedLines = mutableListOf<String>()

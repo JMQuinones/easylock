@@ -16,6 +16,8 @@ class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Ad
     class ViewHolderClass(itemView: View): RecyclerView.ViewHolder(itemView) {
         val rvType:TextView = itemView.findViewById(R.id.tvType)
         val rvTimeStamp:TextView = itemView.findViewById(R.id.tvTimestamp)
+        val rvOpenType:TextView = itemView.findViewById(R.id.tvOpenType)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderClass {
@@ -25,6 +27,7 @@ class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Ad
     override fun onBindViewHolder(holder: ViewHolderClass, position: Int) {
         val currentItem = dataList[position]
         holder.rvTimeStamp.text = currentItem.timestamp
+        holder.rvOpenType.text = currentItem.openType
         if (currentItem.description == "Exito"){
             holder.rvType.text = holder.rvType.context.getString(R.string.open_success)
             val textColor = ContextCompat.getColor(holder.rvType.context, R.color.success)
