@@ -150,7 +150,7 @@ class MainMenuActivity : AppCompatActivity() {
                     showToastNotification("Éxito al autenticar. Abriendo cerradura")
                     val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@MainMenuActivity)
                     bluetoothUtils.connectDeviceAndOpen(MACAddress)
-                    LogUtils.logError("Open Attempt", "Exito", this@MainMenuActivity)
+                    LogUtils.logError("Open Attempt", "Exito", "Rec. Dactilar", this@MainMenuActivity)
                 } else {
                     showToastNotification("No hay un dispositivo conectado")
 
@@ -167,7 +167,7 @@ class MainMenuActivity : AppCompatActivity() {
                     this@MainMenuActivity,
                     "Error al autenticar.", Toast.LENGTH_LONG
                 ).show()
-                LogUtils.logError("Open Attempt", "Error", this@MainMenuActivity)
+                LogUtils.logError("Open Attempt", "Error", "Rec. Dactilar", this@MainMenuActivity)
 
             }
         })

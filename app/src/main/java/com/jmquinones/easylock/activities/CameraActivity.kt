@@ -187,7 +187,7 @@ class CameraActivity : AppCompatActivity() {
 
                 bluetoothUtils.connectDeviceAndOpen(MACAddress)
                 //TODO: Save open attempt to log
-                LogUtils.logError("Open Attempt", "Exito", this@CameraActivity)
+                LogUtils.logError("Open Attempt", "Exito", "Rec. Facial", this@CameraActivity)
 
             } else {
                 showToastNotification("No hay un dispositivo conectado")
@@ -195,7 +195,7 @@ class CameraActivity : AppCompatActivity() {
         } else {
             showToastNotification("Error al autenticar")
             //TODO: Save open attempt to log
-            LogUtils.logError("Open Attempt", "Error", this@CameraActivity)
+            LogUtils.logError("Open Attempt", "Error","Rec. Facial", this@CameraActivity)
 
         }
     }
@@ -244,7 +244,7 @@ class CameraActivity : AppCompatActivity() {
 
                 bluetoothUtils.connectDeviceAndOpen(MACAddress)
                 //TODO: Save open attempt to log
-                LogUtils.logError("Open Attempt", "Exito", this@CameraActivity)
+                LogUtils.logError("Open Attempt", "Exito", "Rec. Facial", this@CameraActivity)
 
             } else {
                 showToastNotification("No hay un dispositivo conectado")
@@ -252,7 +252,7 @@ class CameraActivity : AppCompatActivity() {
         } else {
             showToastNotification("Error al autenticar")
             //TODO: Save open attempt to log
-            LogUtils.logError("Open Attempt", "Error", this@CameraActivity)
+            LogUtils.logError("Open Attempt", "Error", "Rec. Facial", this@CameraActivity)
 
         }
         // Releases model resources if no longer used.

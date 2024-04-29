@@ -1,8 +1,10 @@
 package com.jmquinones.easylock.activities
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +14,7 @@ import com.jmquinones.easylock.adapters.AdapterClass
 import com.jmquinones.easylock.databinding.ActivityLogsBinding
 import com.jmquinones.easylock.models.LogAttempt
 import com.jmquinones.easylock.utils.LogUtils
+import com.jmquinones.easylock.utils.ToastUtils
 import java.io.File
 
 class LogsActivity : AppCompatActivity() {
@@ -23,8 +26,15 @@ class LogsActivity : AppCompatActivity() {
         val view = binding.root
         super.onCreate(savedInstanceState)
         setContentView(view)
+        initListeners()
         initView()
 
+    }
+
+    private fun initListeners() {
+        binding.fabDelete.setOnClickListener{
+            this.deleteLogs();
+        }
     }
 
     private fun initView() {
@@ -40,13 +50,37 @@ class LogsActivity : AppCompatActivity() {
             logs.forEachLine {
                 println(it)
                 val logValues = it.split("#")
-                logsLists.add(LogAttempt(logValues[0], logValues[1]))
+                logsLists.add(LogAttempt(logValues[0], logValues[1], logValues[2]))
             }
             binding.rvLogs.adapter = AdapterClass(logsLists)
 
         } catch (e: Exception){
+            e.localizedMessage?.let { showToastNotification(it) }
             e.printStackTrace()
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun deleteLogs() {
+        showToastNotification("Eliminando registros")
+        try {
+
+            LogUtils.deleteLogs(this@LogsActivity)
+            logsLists.clear()
+            binding.rvLogs.adapter?.notifyDataSetChanged()
+            showToastNotification("Registros eliminados.")
+        } catch (e: Exception) {
+            e.localizedMessage?.let { showToastNotification(it) }
+            e.printStackTrace()
+        }
+    }
+
+    private fun showToastNotification(message: String) {
+        Toast.makeText(
+            this@LogsActivity,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
 
