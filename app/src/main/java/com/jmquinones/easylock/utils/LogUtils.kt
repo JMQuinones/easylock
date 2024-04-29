@@ -10,6 +10,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.log
 
 
 class LogUtils: Application() {
@@ -41,6 +42,11 @@ class LogUtils: Application() {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+        }
+
+        fun deleteLogs(context: Context) {
+            val logFile = getLogFile(context)
+            logFile.printWriter().use { it.print("") }
         }
 
         fun getLogFile(context: Context): File {
