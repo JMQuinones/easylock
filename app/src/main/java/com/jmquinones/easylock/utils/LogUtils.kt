@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileWriter
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -26,7 +27,7 @@ class LogUtils: Application() {
             try {
                 // Create a log file
                 val logFile = getLogFile(context)
-
+                val existingLogs = logFile.readLines()
                 // Get the current timestamp
                 val timestamp =
                     SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
@@ -34,11 +35,20 @@ class LogUtils: Application() {
                 // Write the log entry to the file
                 val logEntry = """
                    $timestamp#$message
-                   
                    """.trimIndent()
-                val outputStream = FileOutputStream(logFile, true)
+
+                val updatedLines = mutableListOf<String>()
+                updatedLines.add(logEntry)
+                updatedLines.addAll(existingLogs)
+
+                val writer = FileWriter(logFile.absolutePath)
+                updatedLines.forEach { line ->
+                    writer.write("$line\n")
+                }
+                writer.close()
+                /*val outputStream = FileOutputStream(logFile, true)
                 outputStream.write(logEntry.toByteArray())
-                outputStream.close()
+                outputStream.close()*/
             } catch (e: IOException) {
                 e.printStackTrace()
             }
