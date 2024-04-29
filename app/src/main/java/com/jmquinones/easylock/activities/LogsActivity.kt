@@ -55,7 +55,7 @@ class LogsActivity : AppCompatActivity() {
             binding.rvLogs.adapter = AdapterClass(logsLists)
 
         } catch (e: Exception){
-            e.localizedMessage?.let { showToastNotification(it.toString()) }
+            e.localizedMessage?.let { showToastNotification(it) }
             e.printStackTrace()
         }
     }
@@ -68,8 +68,9 @@ class LogsActivity : AppCompatActivity() {
             LogUtils.deleteLogs(this@LogsActivity)
             logsLists.clear()
             binding.rvLogs.adapter?.notifyDataSetChanged()
+            showToastNotification("Registros eliminados.")
         } catch (e: Exception) {
-            e.localizedMessage?.let { showToastNotification(it.toString()) }
+            e.localizedMessage?.let { showToastNotification(it) }
             e.printStackTrace()
         }
     }
