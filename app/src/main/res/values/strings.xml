@@ -7,6 +7,7 @@
     <string name="main_menu_choice">Seleccione una opción</string>
     <string name="face_icon">Face icon</string>
     <string name="fingerprint_icon">Fingerprint icon</string>
+    <string name="logs_icon">Logs icon</string>
     <string name="exit">Salir</string>
 <!--    Camera-->
     <string name="predicted">Predicción: </string>
@@ -17,5 +18,10 @@
     <string name="select_device">Seleccione un dispositivo</string>
     <string name="no_paired_device">No tiene dispositivos vinculados. \nVincule e intente de nuevo</string>
     <string name="controls">Controles</string>
+    <string name="intentos_de_apertura">Intentos de apertura</string>
+    <string name="open_success">\u2022 Apertura exitosa</string>
+    <string name="open_failure">\u2022 Apertura fallida</string>
+    <string name="delete_logs">Eliminar registros</string>
+    <string name="dash">-</string>
 
 </resources>
