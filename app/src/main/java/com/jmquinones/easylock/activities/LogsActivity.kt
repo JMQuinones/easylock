@@ -1,6 +1,7 @@
 package com.jmquinones.easylock.activities
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -33,7 +34,18 @@ class LogsActivity : AppCompatActivity() {
 
     private fun initListeners() {
         binding.fabDelete.setOnClickListener{
-            this.deleteLogs();
+            //this.deleteLogs();
+            val builder = AlertDialog.Builder(this@LogsActivity)
+            builder.setMessage("Desea eliminar los registros?")
+                .setCancelable(false)
+                .setPositiveButton("Eliminar") { _, _ ->
+                    this.deleteLogs()
+                }
+                .setNegativeButton("Cancelar") { dialog, _ ->
+                    dialog.dismiss()
+                }
+            val alert = builder.create()
+            alert.show()
         }
     }
 
