@@ -44,6 +44,14 @@ class BluetoothUtils(var MACAddress: String = "", val context: Context) {
             .subscribe(this::onConnectedAndOpen, this::onError)
     }
 
+    @SuppressLint("CheckResult")
+    fun connectDeviceAndClose(mac: String) {
+        bluetoothManager.openSerialDevice(mac)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::onConnectedAndClosed, this::onError)
+    }
+
 
     private fun onConnected(connectedDevice: BluetoothSerialDevice) {
         deviceInterface = connectedDevice.toSimpleDeviceInterface()
@@ -61,6 +69,16 @@ class BluetoothUtils(var MACAddress: String = "", val context: Context) {
         showToastNotification("Conectado con exito")
 
         sendMessage("A")
+    }
+
+    private fun onConnectedAndClosed(connectedDevice: BluetoothSerialDevice) {
+        deviceInterface = connectedDevice.toSimpleDeviceInterface()
+        MACAddress = connectedDevice.mac
+
+        deviceInterface.setListeners(this::onClosedLockMessageReceived, this::onMessageSent, this::onError)
+        showToastNotification("Conectado con exito")
+
+        sendMessage("B")
     }
 
     fun disconnect(mac: String) {
@@ -89,6 +107,11 @@ class BluetoothUtils(var MACAddress: String = "", val context: Context) {
 
     private fun onOpenLockMessageReceived(message: String) {
         showToastNotification("Cerradura abierta exitosamente")
+        disconnect(MACAddress)
+    }
+
+    private fun onClosedLockMessageReceived(message: String) {
+        showToastNotification("Cerradura cerrada exitosamente")
         disconnect(MACAddress)
     }
 
