@@ -62,14 +62,16 @@ class LogUtils: Application() {
         fun getLogFile(context: Context): File {
             // Get the app's external storage directory
             val externalDir: File = File(context.getExternalFilesDir(null), "Logs")
+            val logFileName = "app_logs.txt"
 
             // Create the directory if it doesn't exist
             if (!externalDir.exists()) {
                 externalDir.mkdirs()
+                val emptyFile = File(externalDir, logFileName)
+                emptyFile.createNewFile();
             }
 
             // Create a log file within the directory
-            val logFileName = "app_logs.txt"
             return File(externalDir, logFileName)
         }
 
