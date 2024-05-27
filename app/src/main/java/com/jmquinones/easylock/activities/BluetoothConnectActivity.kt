@@ -39,7 +39,9 @@ class BluetoothConnectActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        bluetoothUtils.disconnect(MACAddress)
+        if(this::MACAddress.isInitialized){
+            bluetoothUtils.disconnect(MACAddress)
+        }
         super.onDestroy()
     }
 
