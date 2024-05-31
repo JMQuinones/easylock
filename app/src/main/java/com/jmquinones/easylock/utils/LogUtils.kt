@@ -72,10 +72,6 @@ class LogUtils: Application() {
             }
 
             // Create a log file within the directory
-            }
-
-            // Create a log file within the directory
-            val logFileName = "app_logs.txt"
             return File(externalDir, logFileName)
         }
 
