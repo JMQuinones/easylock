@@ -46,6 +46,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     }
 
 
+
     private fun initListeners() {
         checkPermission()
 
@@ -118,6 +119,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
         MACAddress = mac
         bluetoothUtils.connectDevice(mac)
         //bluetoothUtils.disconnect(mac)
+
     }
 
 

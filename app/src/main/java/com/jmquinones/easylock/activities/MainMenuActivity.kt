@@ -57,6 +57,7 @@ class MainMenuActivity : AppCompatActivity() {
             val intent = Intent(this, LogsActivity::class.java)
             startActivity(intent)
         }
+
         binding.cvClose.setOnClickListener{
             closeLock();
         }
