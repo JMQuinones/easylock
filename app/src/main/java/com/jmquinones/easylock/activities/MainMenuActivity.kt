@@ -57,6 +57,22 @@ class MainMenuActivity : AppCompatActivity() {
             val intent = Intent(this, LogsActivity::class.java)
             startActivity(intent)
         }
+
+        binding.cvClose.setOnClickListener{
+            closeLock();
+        }
+    }
+
+    private fun closeLock() {
+        if(MACAddress.isNotEmpty()){
+            showToastNotification("Cerrando cerradura")
+            val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@MainMenuActivity)
+            bluetoothUtils.connectDeviceAndClose(MACAddress)
+            LogUtils.logError("Open Attempt", "Exito", "Rec. Dactilar", this@MainMenuActivity)
+        } else {
+            showToastNotification("No hay un dispositivo conectado")
+
+        }
     }
 
 

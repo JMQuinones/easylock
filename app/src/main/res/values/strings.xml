@@ -23,5 +23,6 @@
     <string name="open_failure">\u2022 Apertura fallida</string>
     <string name="delete_logs">Eliminar registros</string>
     <string name="dash">-</string>
+    <string name="close_icon">Close icon</string>
 
 </resources>

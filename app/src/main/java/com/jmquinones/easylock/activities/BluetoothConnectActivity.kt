@@ -38,6 +38,13 @@ class BluetoothConnectActivity : AppCompatActivity() {
         initListeners()
     }
 
+    override fun onDestroy() {
+        if(this::MACAddress.isInitialized){
+            bluetoothUtils.disconnect(MACAddress)
+        }
+        super.onDestroy()
+    }
+
 
 
     private fun initListeners() {
@@ -111,6 +118,8 @@ class BluetoothConnectActivity : AppCompatActivity() {
         Log.d("MAC", mac)
         MACAddress = mac
         bluetoothUtils.connectDevice(mac)
+        //bluetoothUtils.disconnect(mac)
+
     }
 
 
