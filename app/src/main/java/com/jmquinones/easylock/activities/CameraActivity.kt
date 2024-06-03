@@ -126,7 +126,6 @@ class CameraActivity : AppCompatActivity() {
                             bounds.right - bounds.left,
                             bounds.bottom - bounds.top
                         )
-
                         binding.ivPicture.setImageBitmap(faceDetected)
                         classifyImage(faceDetected)
 
@@ -198,6 +197,7 @@ class CameraActivity : AppCompatActivity() {
             LogUtils.logError("Open Attempt", "Error","Rec. Facial", this@CameraActivity)
 
         }
+        imageClassifier.close()
     }
 
     private fun classifyImageOld(image: Bitmap?) {
