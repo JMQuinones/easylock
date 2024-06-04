@@ -21,6 +21,7 @@
     <string name="intentos_de_apertura">Intentos de apertura</string>
     <string name="open_success">\u2022 Apertura exitosa</string>
     <string name="open_failure">\u2022 Apertura fallida</string>
+    <string name="close_success">\u2022 Cerradura asegurada</string>
     <string name="delete_logs">Eliminar registros</string>
     <string name="dash">-</string>
     <string name="close_icon">Close icon</string>

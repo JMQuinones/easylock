@@ -32,6 +32,10 @@ class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Ad
             holder.rvType.text = holder.rvType.context.getString(R.string.open_success)
             val textColor = ContextCompat.getColor(holder.rvType.context, R.color.success)
             holder.rvType.setTextColor(textColor)
+        } else if(currentItem.description == "Cerrar"){
+            holder.rvType.text = holder.rvType.context.getString(R.string.close_success)
+            val textColor = ContextCompat.getColor(holder.rvType.context, R.color.warning)
+            holder.rvType.setTextColor(textColor)
         } else {
             holder.rvType.text = holder.rvType.context.getString(R.string.open_failure)
             val textColor = ContextCompat.getColor(holder.rvType.context, R.color.error)
