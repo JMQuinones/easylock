@@ -59,6 +59,10 @@ class LogsActivity : AppCompatActivity() {
     private fun loadLogs(){
         val logs: File = LogUtils.getLogFile(this@LogsActivity)
         try {
+            if(logs.length() == 0L) {
+                binding.tvDeleteTitle.text = "No existen registros"
+                return
+            }
             logs.forEachLine {
                 println(it)
                 val logValues = it.split("#")
@@ -81,6 +85,7 @@ class LogsActivity : AppCompatActivity() {
             logsLists.clear()
             binding.rvLogs.adapter?.notifyDataSetChanged()
             showToastNotification("Registros eliminados.")
+            binding.tvDeleteTitle.text = "No existen registros"
         } catch (e: Exception) {
             e.localizedMessage?.let { showToastNotification(it) }
             e.printStackTrace()
