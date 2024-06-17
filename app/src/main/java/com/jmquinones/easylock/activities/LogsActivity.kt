@@ -39,6 +39,10 @@ import java.util.Locale
 
 class LogsActivity : AppCompatActivity() {
     private val WRITE_EXTERNAL_STORAGE_REQUEST_CODE: Int = 1
+    // Letter size in pixels = 816 x 1054
+    private var PAGE_WIDTH = 816
+    private var PAGE_HEIGHT = 1054
+
     private lateinit var binding: ActivityLogsBinding
     //private lateinit var recyclerView: RecyclerView
     private lateinit var logsLists: ArrayList<LogAttempt>
@@ -125,38 +129,66 @@ class LogsActivity : AppCompatActivity() {
 
     private fun saveToPdf(fileName:String, title: String, ) {
 
+        var successCount = 0
+        var failedCount = 0
+        var closedCount = 0
+
         val pdfDocument = PdfDocument()
         val paint = Paint()
+
         val titlePaint = TextPaint()
         val contentPaint = TextPaint()
+        val descPaint = TextPaint()
 
-        // Letter size in pixels = 816 x 1054
-        val pageInfo = PdfDocument.PageInfo.Builder(816, 1054, 1).create()
+
+        val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create()
         val page = pdfDocument.startPage(pageInfo)
 
         val canvas = page.canvas
 
+        // Set logo
         val bitmap = BitmapFactory.decodeResource(this.resources, R.drawable.pdf_logo)
         val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 80,80, false)
-
         canvas.drawBitmap(scaledBitmap, 368f, 20f, paint)
 
+        // Set title
         titlePaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         titlePaint.textSize = 20f
+        canvas.drawText(title, 225f, 150f, titlePaint)
 
-        canvas.drawText(title, 250f, 150f, titlePaint)
-//        canvas.drawText(getCurrentDate(), 300f, 175f, titlePaint)
 
+        // Set content
         contentPaint.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
         contentPaint.textSize = 14f
 
-        //val contentArray = content.split("\n")
-
         var y = 250f
         for (log in logsLists) {
-            canvas.drawText("${log.description} - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
+            when (log.description) {
+                "Exito" -> {
+                    successCount++
+                    contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.success)
+                    canvas.drawText("\u2022 Apertura exitosa - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
+
+                }
+                "Error" -> {
+                    failedCount++
+                    contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.error)
+                    canvas.drawText("\u2022 Apertura fallida - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
+                }
+                else -> {
+                    closedCount++
+                    contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.warning)
+                    canvas.drawText("\u2022 Cerradura asegurada - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
+
+                }
+            }
             y += 25
         }
+        // Set description
+        descPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+        descPaint.color = ContextCompat.getColor(this, R.color.light_gray)
+        val desc = "Exitosos: $successCount - Fallidos: $failedCount - Cerrar: $closedCount"
+        canvas.drawText(desc, 325f, 175f, descPaint)
 
         pdfDocument.finishPage(page)
 
