@@ -25,5 +25,6 @@
     <string name="delete_logs">Eliminar registros</string>
     <string name="dash">-</string>
     <string name="close_icon">Close icon</string>
+    <string name="imprimir_registros">Imprimir registros</string>
 
 </resources>

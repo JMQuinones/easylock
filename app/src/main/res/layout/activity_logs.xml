@@ -40,4 +40,17 @@
         android:contentDescription="@string/delete_logs"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabPrint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="8dp"
+        app:backgroundTint="@color/secondary"
+        app:tint="@color/light_white"
+        android:src="@drawable/ic_baseline_print_24"
+        app:fabSize="auto"
+        android:contentDescription="@string/imprimir_registros"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/fabDelete"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
