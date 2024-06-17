@@ -127,7 +127,7 @@ class LogsActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveToPdf(fileName:String, title: String, ) {
+    private fun saveToPdf(fileName: String, title: String, ) {
 
         var successCount = 0
         var failedCount = 0
@@ -136,9 +136,9 @@ class LogsActivity : AppCompatActivity() {
         val pdfDocument = PdfDocument()
         val paint = Paint()
 
-        val titlePaint = TextPaint()
-        val contentPaint = TextPaint()
-        val descPaint = TextPaint()
+        val titlePaint = getTextPaint(20f, Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
+        val contentPaint = getTextPaint(14f, Typeface.defaultFromStyle(Typeface.NORMAL))
+        val descPaint = getTextPaint(10f, Typeface.create(Typeface.DEFAULT, Typeface.ITALIC))
 
 
         val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create()
@@ -148,20 +148,14 @@ class LogsActivity : AppCompatActivity() {
 
         // Set logo
         val bitmap = BitmapFactory.decodeResource(this.resources, R.drawable.pdf_logo)
-        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 80,80, false)
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120,120, true)
         canvas.drawBitmap(scaledBitmap, 368f, 20f, paint)
 
         // Set title
-        titlePaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        titlePaint.textSize = 20f
         canvas.drawText(title, 225f, 150f, titlePaint)
 
-
         // Set content
-        contentPaint.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
-        contentPaint.textSize = 14f
-
-        var y = 250f
+        var y = 200f
         for (log in logsLists) {
             when (log.description) {
                 "Exito" -> {
@@ -179,21 +173,17 @@ class LogsActivity : AppCompatActivity() {
                     closedCount++
                     contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.warning)
                     canvas.drawText("\u2022 Cerradura asegurada - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
-
                 }
             }
             y += 25
         }
         // Set description
-        descPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
         descPaint.color = ContextCompat.getColor(this, R.color.light_gray)
-        val desc = "Exitosos: $successCount - Fallidos: $failedCount - Cerrar: $closedCount"
-        canvas.drawText(desc, 325f, 175f, descPaint)
+        canvas.drawText("Exitosos: $successCount - Fallidos: $failedCount - Cerrar: $closedCount", 350f, 175f, descPaint)
 
         pdfDocument.finishPage(page)
 
         val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        //val fileName = "example.pdf"
 
         val file = File(downloadsDir, fileName)
         try {
@@ -215,7 +205,6 @@ class LogsActivity : AppCompatActivity() {
         val textPaint = TextPaint()
         textPaint.typeface = typeface
         textPaint.textSize = textSize
-        //textPaint.color = R.color.error
         return textPaint
     }
 
