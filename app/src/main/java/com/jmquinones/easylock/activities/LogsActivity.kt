@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
@@ -142,9 +143,9 @@ class LogsActivity : AppCompatActivity() {
 
 
         val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create()
-        val page = pdfDocument.startPage(pageInfo)
+        var page = pdfDocument.startPage(pageInfo)
 
-        val canvas = page.canvas
+        var canvas = page.canvas
 
         // Set logo
         val bitmap = BitmapFactory.decodeResource(this.resources, R.drawable.pdf_logo)
@@ -157,6 +158,13 @@ class LogsActivity : AppCompatActivity() {
         // Set content
         var y = 200f
         for (log in logsLists) {
+
+            if(y >= PAGE_HEIGHT-150){
+                y = 200f
+                pdfDocument.finishPage(page)
+                page = pdfDocument.startPage(pageInfo)
+                canvas = page.canvas
+            }
             when (log.description) {
                 "Exito" -> {
                     successCount++
@@ -200,6 +208,8 @@ class LogsActivity : AppCompatActivity() {
             throw RuntimeException(e)
         }
     }
+
+    private fun setPdfHeader(canvas: Canvas, ){}
 
     private fun getTextPaint(textSize: Float, typeface: Typeface ): TextPaint{
         val textPaint = TextPaint()
