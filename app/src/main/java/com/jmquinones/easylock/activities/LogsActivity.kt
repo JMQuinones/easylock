@@ -79,7 +79,7 @@ class LogsActivity : AppCompatActivity() {
 
         binding.fabPrint.setOnClickListener{
             Toast.makeText(this, "Imprimiendo registros...", Toast.LENGTH_LONG).show()
-            saveToPdf("registros.pdf", "Intentos de apertura - ${getCurrentDate()}")
+            saveToPdf("registros.pdf")
         }
     }
 
@@ -102,7 +102,6 @@ class LogsActivity : AppCompatActivity() {
                 return
             }
             logs.forEachLine {
-                //println(it)
                 val logValues = it.split("#")
                 when (logValues[1]) {
                     "Exito" -> {
@@ -143,7 +142,7 @@ class LogsActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveToPdf(fileName: String, title: String, ) {
+    private fun saveToPdf(fileName: String) {
         val pdfDocument = PdfDocument()
         //val paint = Paint()
 
@@ -163,7 +162,7 @@ class LogsActivity : AppCompatActivity() {
         var y = 200f
         for (log in logsLists) {
 
-            if(y >= PAGE_HEIGHT-150){
+            if(y >= PAGE_HEIGHT-75){
                 y = 200f
                 pdfDocument.finishPage(page)
                 page = pdfDocument.startPage(pageInfo)
@@ -172,18 +171,15 @@ class LogsActivity : AppCompatActivity() {
             }
             when (log.description) {
                 "Exito" -> {
-                    //successCount++
                     contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.success)
                     canvas.drawText("\u2022 Apertura exitosa - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
 
                 }
                 "Error" -> {
-                    //failedCount++
                     contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.error)
                     canvas.drawText("\u2022 Apertura fallida - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
                 }
                 else -> {
-                    //closedCount++
                     contentPaint.color = ContextCompat.getColor(this@LogsActivity, R.color.info)
                     canvas.drawText("\u2022 Cerradura asegurada - ${log.openType} - ${log.timestamp}", 100f, y, contentPaint)
                 }
