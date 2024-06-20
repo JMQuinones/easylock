@@ -39,10 +39,13 @@ import java.util.Calendar
 import java.util.Locale
 
 class LogsActivity : AppCompatActivity() {
-    private val WRITE_EXTERNAL_STORAGE_REQUEST_CODE: Int = 1
-    // Letter size in pixels = 816 x 1054
-    private var PAGE_WIDTH = 816
-    private var PAGE_HEIGHT = 1054
+    companion object {
+        const val WRITE_EXTERNAL_STORAGE_REQUEST_CODE: Int = 1
+        // Letter size in pixels = 816 x 1054
+        const val PAGE_WIDTH = 816
+        const val PAGE_HEIGHT = 1054
+    }
+
 
     private var successCount = 0
     private var failedCount = 0

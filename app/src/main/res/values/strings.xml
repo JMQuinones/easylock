@@ -16,7 +16,7 @@
 <!--    Bluetooth-->
     <string name="connect">Conectar</string>
     <string name="select_device">Seleccione un dispositivo</string>
-    <string name="no_paired_device">No tiene dispositivos vinculados. \nVincule e intente de nuevo</string>
+    <string name="no_paired_device">No tiene dispositivos vinculados. \nVinculé e intente de nuevo</string>
     <string name="controls">Controles</string>
     <string name="intentos_de_apertura">Intentos de apertura</string>
     <string name="open_success">\u2022 Apertura exitosa</string>
