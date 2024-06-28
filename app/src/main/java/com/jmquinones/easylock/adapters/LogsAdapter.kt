@@ -5,7 +5,6 @@ package com.jmquinones.easylock.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -36,7 +35,7 @@ class AdapterClass(private val dataList: ArrayList<LogAttempt>): RecyclerView.Ad
             }
             "Cerrar" -> {
                 holder.rvType.text = holder.rvType.context.getString(R.string.close_success)
-                val textColor = ContextCompat.getColor(holder.rvType.context, R.color.warning)
+                val textColor = ContextCompat.getColor(holder.rvType.context, R.color.info)
                 holder.rvType.setTextColor(textColor)
             }
             else -> {

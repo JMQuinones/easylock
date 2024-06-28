@@ -38,30 +38,25 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvSelected"
         android:textColor="@color/white"/>
-    <!--<TextView
-        android:id="@+id/mac"
+    <!--<androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnPair"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:backgroundTint="@color/secondary"
+        android:text="@string/pair_device"
+        android:textColor="@color/white"
+        />-->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnPair"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/primary"/>
-    <TextView
-        android:id="@+id/stored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/secondary"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="encender"
-        android:id="@+id/btnOn"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="apagar"
-        android:id="@+id/btnOff"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="desconectar"
-        android:id="@+id/btnDisconnect"/>-->
-
+        android:layout_gravity="end|bottom"
+        android:layout_margin="8dp"
+        app:backgroundTint="@color/secondary"
+        app:tint="@color/light_white"
+        android:src="@drawable/ic_add"
+        app:fabSize="auto"
+        android:contentDescription="@string/pair_device"
+        />
 </LinearLayout>
