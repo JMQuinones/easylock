@@ -5,11 +5,13 @@
     <color name="light_white">#FAFAFC</color>
     <color name="primary">#50006C</color>
     <color name="secondary">#7a4fbf</color>
-    <color name="tertiary">#bfa5e0</color>
+    <color name="tertiary">#AB95C6</color>
     <color name="background_color">#110a17</color>
 
     <color name="success">#4CAF50</color>
     <color name="error">#E91E1E</color>
+    <color name="warning">#FFEB3B</color>
+    <color name="info">#03A9F4</color>
 
 
     <color name="dark_gray">#27232c</color>

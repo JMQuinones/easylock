@@ -1,23 +1,26 @@
 package com.jmquinones.easylock.activities
 
+//import android.R
 import android.Manifest
 import android.annotation.SuppressLint
-//import android.R
 import android.bluetooth.BluetoothDevice
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.R
 import com.jmquinones.easylock.databinding.ActivityBluetoothConnectBinding
-import java.lang.Exception
+import com.jmquinones.easylock.utils.BluetoothUtils
 
 
 class BluetoothConnectActivity : AppCompatActivity() {
@@ -49,7 +52,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
 
     private fun initListeners() {
         checkPermission()
-
+        binding.btnPair.setOnClickListener{openBluetoothSettings()}
         binding.listDeviceBluetooth.setOnItemClickListener { _, _, i, _ ->
             if (!pairedDevices.isEmpty()) {
                 binding.tvTitle.text = resources.getString(R.string.select_device)
@@ -87,6 +90,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
         val arrayListDevice: ArrayList<String> = ArrayList<String>()
         if (pairedDevices.isEmpty()) {
             binding.tvTitle.text = resources.getString(R.string.no_paired_device);
+            showDialog()
             return
         }
         for (device in pairedDevices) {
@@ -101,6 +105,26 @@ class BluetoothConnectActivity : AppCompatActivity() {
         )
 
         binding.listDeviceBluetooth.adapter = adapter
+    }
+
+    private fun showDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setCancelable(true)
+        builder.setTitle("No se encontraron dispositivos vinculados.")
+        builder.setMessage("¿Abrir ajustes para configurar?")
+        builder.setPositiveButton("Abrir",
+            DialogInterface.OnClickListener { dialog, which -> openBluetoothSettings()})
+        builder.setNegativeButton("Cancelar",
+            DialogInterface.OnClickListener { dialog, which -> })
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
+    private fun openBluetoothSettings() {
+        val intentOpenBluetoothSettings = Intent()
+        intentOpenBluetoothSettings.setAction(Settings.ACTION_BLUETOOTH_SETTINGS)
+        startActivity(intentOpenBluetoothSettings)
     }
 
     private fun checkPermission() {

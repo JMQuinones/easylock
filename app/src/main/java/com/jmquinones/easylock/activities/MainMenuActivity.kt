@@ -68,7 +68,7 @@ class MainMenuActivity : AppCompatActivity() {
             showToastNotification("Cerrando cerradura")
             val bluetoothUtils = BluetoothUtils(MACAddress=MACAddress,context = this@MainMenuActivity)
             bluetoothUtils.connectDeviceAndClose(MACAddress)
-            LogUtils.logError("Open Attempt", "Exito", "Rec. Dactilar", this@MainMenuActivity)
+            LogUtils.logError("Close Attempt", "Cerrar", "Cerrar", this@MainMenuActivity)
         } else {
             showToastNotification("No hay un dispositivo conectado")
 

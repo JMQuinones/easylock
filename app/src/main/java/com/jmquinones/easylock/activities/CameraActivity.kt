@@ -126,7 +126,6 @@ class CameraActivity : AppCompatActivity() {
                             bounds.right - bounds.left,
                             bounds.bottom - bounds.top
                         )
-
                         binding.ivPicture.setImageBitmap(faceDetected)
                         classifyImage(faceDetected)
 
@@ -181,12 +180,10 @@ class CameraActivity : AppCompatActivity() {
         if (predictedResult.categoryName() != "negative" && predictedResult.score() * 100 >= 75) {
             if (this::MACAddress.isInitialized && MACAddress.isNotEmpty()) {
                 showToastNotification("Éxito al autenticar. Abriendo cerradura")
-                //TODO: Send message to the arduino boards to open the lock
                 val bluetoothUtils =
                     BluetoothUtils(MACAddress = MACAddress, context = this@CameraActivity)
 
                 bluetoothUtils.connectDeviceAndOpen(MACAddress)
-                //TODO: Save open attempt to log
                 LogUtils.logError("Open Attempt", "Exito", "Rec. Facial", this@CameraActivity)
 
             } else {
@@ -194,12 +191,14 @@ class CameraActivity : AppCompatActivity() {
             }
         } else {
             showToastNotification("Error al autenticar")
-            //TODO: Save open attempt to log
             LogUtils.logError("Open Attempt", "Error","Rec. Facial", this@CameraActivity)
 
         }
+        // Close and clean the task
+        imageClassifier.close()
     }
 
+    @Deprecated("Changed to media-pipe task")
     private fun classifyImageOld(image: Bitmap?) {
 //        val model = Model1.newInstance(applicationContext)
 //        val model = ModelUnquant.newInstance(applicationContext)
