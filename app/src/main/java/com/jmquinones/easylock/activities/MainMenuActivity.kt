@@ -15,14 +15,27 @@ import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.lifecycle.lifecycleScope
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.R
 import com.jmquinones.easylock.databinding.ActivityMainMenuBinding
+import com.jmquinones.easylock.utils.Constants.Companion.ATTEMPT_COUNTER_KEY
+import com.jmquinones.easylock.utils.Constants.Companion.DATE_KEY
 import com.jmquinones.easylock.utils.LogUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executor
 
 
-class MainMenuActivity : AppCompatActivity() {
+class   MainMenuActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainMenuBinding
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
@@ -46,12 +59,22 @@ class MainMenuActivity : AppCompatActivity() {
         }
         binding.cvFinger.setOnClickListener {
 //            checkDeviceHasBiometric()
-            biometricPrompt.authenticate(promptInfo)
+            if(checkIsBlocked()){
+                biometricPrompt.authenticate(promptInfo)
+            } else {
+                showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
+            }
+            //biometricPrompt.authenticate(promptInfo)
 
         }
         binding.cvFace.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            startActivity(intent)
+            Log.d("checkIsBlocked", checkIsBlocked().toString())
+            if(checkIsBlocked()){
+                val intent = Intent(this, CameraActivity::class.java)
+                startActivity(intent)
+            } else {
+                showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
+            }
         }
         binding.cvLogs.setOnClickListener {
             val intent = Intent(this, LogsActivity::class.java)
@@ -60,6 +83,22 @@ class MainMenuActivity : AppCompatActivity() {
 
         binding.cvClose.setOnClickListener{
             closeLock();
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val exampleCounterFlow: Flow<Int> = applicationContext.dataStore.data
+                .map { preferences ->
+                    preferences[intPreferencesKey(ATTEMPT_COUNTER_KEY)] ?: 0
+                }
+            exampleCounterFlow.collectLatest{ attempts ->
+                Log.d("Attempts", "$attempts")
+                if (attempts >= 10) {
+                    Log.d("Attempts", "To many attempts")
+                    setAttemptLockDate()
+                    runOnUiThread {
+                        showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
+                    }
+                }
+            }
         }
     }
 
@@ -153,10 +192,6 @@ class MainMenuActivity : AppCompatActivity() {
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
                 showToastNotification("Error al autenticar: $errString")
-//                Toast.makeText(
-//                    this@MainMenuActivity,
-//                    "Error al autenticar: $errString", Toast.LENGTH_LONG
-//                ).show()
             }
 
             // Auth success
@@ -178,6 +213,9 @@ class MainMenuActivity : AppCompatActivity() {
             }
 
             override fun onAuthenticationFailed() {
+                lifecycleScope.launch(Dispatchers.IO){
+                    incrementAttemptsCounter()
+                }
                 super.onAuthenticationFailed()
                 Toast.makeText(
                     this@MainMenuActivity,
@@ -210,5 +248,48 @@ class MainMenuActivity : AppCompatActivity() {
             message,
             Toast.LENGTH_LONG
         ).show()
+    }
+
+    private fun checkIsBlocked(): Boolean {
+        val currentTimeSecs = System.currentTimeMillis()/1000
+
+        val storeData = runBlocking { applicationContext.dataStore.data.first()}
+        val blockDateSecs = storeData[longPreferencesKey(DATE_KEY)] ?: 0
+        if ((currentTimeSecs - blockDateSecs) >= 60){
+            lifecycleScope.launch(Dispatchers.IO){
+                resetDataStore()
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+
+    private suspend fun resetDataStore() {
+        val counterKey = intPreferencesKey(ATTEMPT_COUNTER_KEY)
+        applicationContext.dataStore.edit { settings ->
+            settings[counterKey] = 0
+        }
+        val dateKey = longPreferencesKey(DATE_KEY)
+        applicationContext.dataStore.edit { settings ->
+            settings[dateKey] = 0L
+        }
+    }
+
+    private suspend fun incrementAttemptsCounter() {
+        val counterKey = intPreferencesKey(ATTEMPT_COUNTER_KEY)
+        applicationContext.dataStore.edit { settings ->
+            val currentCounterValue = settings[counterKey] ?: 0
+            settings[counterKey] = currentCounterValue + 1
+        }
+    }
+
+    private suspend fun setAttemptLockDate(){
+        val dateKey = longPreferencesKey(DATE_KEY)
+        val currentTimeSecs = System.currentTimeMillis()/1000
+        applicationContext.dataStore.edit { settings ->
+            //val currentCounterValue = settings[counterKey] ?: 0
+            settings[dateKey] = currentTimeSecs
+        }
     }
 }

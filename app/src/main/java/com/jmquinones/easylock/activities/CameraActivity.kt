@@ -13,6 +13,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.lifecycle.lifecycleScope
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.components.containers.Category
 import com.google.mediapipe.tasks.core.BaseOptions
@@ -27,17 +31,28 @@ import com.jmquinones.easylock.R
 import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.ModelCv
+import com.jmquinones.easylock.utils.Constants.Companion.ATTEMPT_COUNTER_KEY
+import com.jmquinones.easylock.utils.Constants.Companion.DATE_KEY
 import com.jmquinones.easylock.utils.LogUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.time.Instant
 
 class CameraActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCameraBinding
     private var imageSize: Int = 224
     private lateinit var detector: FaceDetector
     private lateinit var MACAddress: String
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityCameraBinding.inflate(layoutInflater)
         val view = binding.root
@@ -49,7 +64,33 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val exampleCounterFlow: Flow<Int> = applicationContext.dataStore.data
+                .map { preferences ->
+                    // No type safety.
+                    preferences[intPreferencesKey(ATTEMPT_COUNTER_KEY)] ?: 0
+                }
+            exampleCounterFlow.collectLatest{ attempts ->
+                Log.d("Attempts", "$attempts")
+                if (attempts >= 10) {
+                    Log.d("Attempts", "To many attempts")
+                    setAttemptLockDate()
+                    runOnUiThread {
+                        showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
+                    }
+                    finish()
+                }
+            }
+        }
         binding.btnPicture.setOnClickListener {
+            //TODO: Move to invalid face
+            /*lifecycleScope.launch(Dispatchers.IO){
+                incrementAttemptsCounter()
+            }*/
+
+
+
 
             // Launch camera if we have permission
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -159,12 +200,7 @@ class CameraActivity : AppCompatActivity() {
                 maxIndex = index
                 maxScore = categories.score()
             }
-            /*Log.e(
-                "Res", "Category: ${categories.categoryName()} " +
-                        ", Display name: ${categories.displayName()}" +
-                        ", Score: ${categories.score()}" +
-                        ", Index: ${categories.index()}"
-            )*/
+
         }
         Log.i("Max Index", "" + maxIndex)
 
@@ -192,7 +228,11 @@ class CameraActivity : AppCompatActivity() {
         } else {
             showToastNotification("Error al autenticar")
             LogUtils.logError("Open Attempt", "Error","Rec. Facial", this@CameraActivity)
+            binding.tvPrediction.text = getString(R.string.negative)
 
+            lifecycleScope.launch(Dispatchers.IO){
+                incrementAttemptsCounter()
+            }
         }
         // Close and clean the task
         imageClassifier.close()
@@ -237,12 +277,11 @@ class CameraActivity : AppCompatActivity() {
             if (MACAddress.isNotEmpty()) {
                 showToastNotification("Éxito al autenticar. Abriendo cerradura")
 
-                //TODO: Send message to the arduino boards to open the lock
+                //Send message to the arduino boards to open the lock
                 val bluetoothUtils =
                     BluetoothUtils(MACAddress = MACAddress, context = this@CameraActivity)
 
                 bluetoothUtils.connectDeviceAndOpen(MACAddress)
-                //TODO: Save open attempt to log
                 LogUtils.logError("Open Attempt", "Exito", "Rec. Facial", this@CameraActivity)
 
             } else {
@@ -250,7 +289,6 @@ class CameraActivity : AppCompatActivity() {
             }
         } else {
             showToastNotification("Error al autenticar")
-            //TODO: Save open attempt to log
             LogUtils.logError("Open Attempt", "Error", "Rec. Facial", this@CameraActivity)
 
         }
@@ -311,5 +349,23 @@ class CameraActivity : AppCompatActivity() {
             Toast.LENGTH_LONG
         ).show()
     }
+
+
+    private suspend fun incrementAttemptsCounter() {
+        val counterKey = intPreferencesKey(ATTEMPT_COUNTER_KEY)
+        applicationContext.dataStore.edit { settings ->
+            val currentCounterValue = settings[counterKey] ?: 0
+            settings[counterKey] = currentCounterValue + 1
+        }
+    }
+
+    private suspend fun setAttemptLockDate(){
+        val dateKey = longPreferencesKey(DATE_KEY)
+        val currentTimeSecs = System.currentTimeMillis()/1000
+        applicationContext.dataStore.edit { settings ->
+            settings[dateKey] = currentTimeSecs
+        }
+    }
+
 
 }
