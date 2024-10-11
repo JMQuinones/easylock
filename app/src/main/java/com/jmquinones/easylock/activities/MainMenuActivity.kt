@@ -1,11 +1,15 @@
 package com.jmquinones.easylock.activities
 
+import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
@@ -25,6 +29,7 @@ import com.jmquinones.easylock.databinding.ActivityMainMenuBinding
 import com.jmquinones.easylock.utils.Constants.Companion.ATTEMPT_COUNTER_KEY
 import com.jmquinones.easylock.utils.Constants.Companion.DATE_KEY
 import com.jmquinones.easylock.utils.LogUtils
+import com.jmquinones.easylock.utils.NotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -41,10 +46,12 @@ class   MainMenuActivity : AppCompatActivity() {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: PromptInfo
     private lateinit var MACAddress: String
+    private lateinit var notificationService: NotificationService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         val view = binding.root
+        notificationService = NotificationService(applicationContext)
         checkDeviceHasBiometric()
         initListeners()
         readMACAddress()
@@ -62,6 +69,7 @@ class   MainMenuActivity : AppCompatActivity() {
             if(checkIsBlocked()){
                 biometricPrompt.authenticate(promptInfo)
             } else {
+                //showNotification()
                 showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
             }
             //biometricPrompt.authenticate(promptInfo)
@@ -73,6 +81,7 @@ class   MainMenuActivity : AppCompatActivity() {
                 val intent = Intent(this, CameraActivity::class.java)
                 startActivity(intent)
             } else {
+                //showNotification()
                 showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
             }
         }
@@ -89,10 +98,11 @@ class   MainMenuActivity : AppCompatActivity() {
                 .map { preferences ->
                     preferences[intPreferencesKey(ATTEMPT_COUNTER_KEY)] ?: 0
                 }
-            exampleCounterFlow.collectLatest{ attempts ->
+            exampleCounterFlow.collect{ attempts ->
                 Log.d("Attempts", "$attempts")
                 if (attempts >= 10) {
                     Log.d("Attempts", "To many attempts")
+                    showNotification()
                     setAttemptLockDate()
                     runOnUiThread {
                         showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
@@ -290,6 +300,38 @@ class   MainMenuActivity : AppCompatActivity() {
         applicationContext.dataStore.edit { settings ->
             //val currentCounterValue = settings[counterKey] ?: 0
             settings[dateKey] = currentTimeSecs
+        }
+    }
+    private fun showNotification() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permission is not granted, request permission
+            requestNotificationPermission()
+        } else {
+            // Permission already granted, proceed with notifications
+            notificationService.showNotification()
+        }
+    }
+    // Register for permission result
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission granted, show notification
+            showNotification()
+        } else {
+            // Permission denied, handle accordingly
+            Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Function to request the permission
+    private fun requestNotificationPermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }

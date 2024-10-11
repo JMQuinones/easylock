@@ -56,11 +56,6 @@ class MainActivity : AppCompatActivity() {
                     100
                 )
             }
-
-            val intent = Intent(this, MainMenuActivity::class.java)
-            startActivity(intent)
-
-
         }
         btnConnect.setOnClickListener {
             if(mBluetoothAdapter.isEnabled){
@@ -73,8 +68,6 @@ class MainActivity : AppCompatActivity() {
                     100
                 )
             }
-            val intent = Intent(this, BluetoothConnectActivity::class.java)
-            startActivity(intent)
         }
 
         btnExit.setOnClickListener {
