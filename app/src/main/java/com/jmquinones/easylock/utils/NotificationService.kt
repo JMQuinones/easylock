@@ -23,8 +23,8 @@ class NotificationService(private val context: Context) {
 
         val notification = NotificationCompat.Builder(context, ALERT_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_axis_lock)
-            .setContentTitle("Increment counter")
-            .setContentText("The count is ")
+            .setContentTitle("Aplicacion bloqueada")
+            .setContentText("Se bloqueo los intentos de apertura. Seleccione para ver los registros")
             .setContentIntent(activityPendingIntent)
             .build()
 
