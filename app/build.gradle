@@ -66,4 +66,10 @@ dependencies {
 
     // Mediapipe dependencies
     implementation 'com.google.mediapipe:tasks-vision:latest.release'
+
+    // Datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
 }
