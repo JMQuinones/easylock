@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -34,6 +35,7 @@ import com.jmquinones.easylock.ml.ModelCv
 import com.jmquinones.easylock.utils.Constants.Companion.ATTEMPT_COUNTER_KEY
 import com.jmquinones.easylock.utils.Constants.Companion.DATE_KEY
 import com.jmquinones.easylock.utils.LogUtils
+import com.jmquinones.easylock.utils.NotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -51,13 +53,14 @@ class CameraActivity : AppCompatActivity() {
     private var imageSize: Int = 224
     private lateinit var detector: FaceDetector
     private lateinit var MACAddress: String
-
+    private lateinit var notificationService: NotificationService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityCameraBinding.inflate(layoutInflater)
         val view = binding.root
         super.onCreate(savedInstanceState)
         setContentView(view)
+        notificationService = NotificationService(applicationContext)
         readMACAddress()
         initListeners()
         initFaceDetector()
@@ -73,7 +76,7 @@ class CameraActivity : AppCompatActivity() {
                 }
             exampleCounterFlow.collectLatest{ attempts ->
                 Log.d("Attempts", "$attempts")
-                if (attempts >= 10) {
+                if (attempts >= 5) {
                     Log.d("Attempts", "To many attempts")
                     setAttemptLockDate()
                     runOnUiThread {
@@ -88,10 +91,6 @@ class CameraActivity : AppCompatActivity() {
             /*lifecycleScope.launch(Dispatchers.IO){
                 incrementAttemptsCounter()
             }*/
-
-
-
-
             // Launch camera if we have permission
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -360,6 +359,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private suspend fun setAttemptLockDate(){
+        showNotification()
         val dateKey = longPreferencesKey(DATE_KEY)
         val currentTimeSecs = System.currentTimeMillis()/1000
         applicationContext.dataStore.edit { settings ->
@@ -367,5 +367,32 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    private fun showNotification() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestNotificationPermission()
+        } else {
+            notificationService.showNotification()
+        }
+    }
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            showNotification()
+        } else {
+            // Permission denied, handle accordingly
+            showToastNotification("Debe otorgar permisos.")
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
 }

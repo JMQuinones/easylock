@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jmquinones.easylock.R
 import com.jmquinones.easylock.activities.LogsActivity
+import kotlin.math.truncate
 
 class NotificationService(private val context: Context) {
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -24,8 +25,10 @@ class NotificationService(private val context: Context) {
         val notification = NotificationCompat.Builder(context, ALERT_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_axis_lock)
             .setContentTitle("Aplicacion bloqueada")
-            .setContentText("Se bloqueo los intentos de apertura. Seleccione para ver los registros")
+            .setContentText("Se bloquearon los intentos de apertura. ")
+            .setSubText("Seleccione para ver los registros.")
             .setContentIntent(activityPendingIntent)
+            .setAutoCancel(true)
             .build()
 
         notificationManager.notify(1, notification)

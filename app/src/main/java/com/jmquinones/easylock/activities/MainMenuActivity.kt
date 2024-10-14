@@ -32,7 +32,6 @@ import com.jmquinones.easylock.utils.LogUtils
 import com.jmquinones.easylock.utils.NotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -51,13 +50,13 @@ class   MainMenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         val view = binding.root
+        executor = ContextCompat.getMainExecutor(this)
         notificationService = NotificationService(applicationContext)
+        biometricPrompt = createBiometricPrompt()
+        promptInfo = buildPromtInfo()
         checkDeviceHasBiometric()
         initListeners()
         readMACAddress()
-        executor = ContextCompat.getMainExecutor(this)
-        biometricPrompt = createBiometricPrompt()
-        promptInfo = buildPromtInfo()
         setContentView(view)
     }
     private fun initListeners() {
@@ -66,7 +65,7 @@ class   MainMenuActivity : AppCompatActivity() {
         }
         binding.cvFinger.setOnClickListener {
 //            checkDeviceHasBiometric()
-            if(checkIsBlocked()){
+            if(checkIsNotBlocked()){
                 biometricPrompt.authenticate(promptInfo)
             } else {
                 //showNotification()
@@ -76,8 +75,8 @@ class   MainMenuActivity : AppCompatActivity() {
 
         }
         binding.cvFace.setOnClickListener {
-            Log.d("checkIsBlocked", checkIsBlocked().toString())
-            if(checkIsBlocked()){
+            Log.d("checkIsBlocked", checkIsNotBlocked().toString())
+            if(checkIsNotBlocked()){
                 val intent = Intent(this, CameraActivity::class.java)
                 startActivity(intent)
             } else {
@@ -260,13 +259,11 @@ class   MainMenuActivity : AppCompatActivity() {
         ).show()
     }
 
-    private fun checkIsBlocked(): Boolean {
+    private fun checkIsNotBlocked(): Boolean {
         val currentTimeSecs = System.currentTimeMillis()/1000
 
         val storeData = runBlocking { applicationContext.dataStore.data.first()}
         val blockDateSecs = storeData[longPreferencesKey(DATE_KEY)] ?: 0
-        Log.i("MainMenuActivity", "storeDAta $blockDateSecs")
-        Log.i("MainMenuActivity", "currentDate $currentTimeSecs")
 
         if ((currentTimeSecs - blockDateSecs) >= 60){
             lifecycleScope.launch(Dispatchers.IO){
@@ -294,25 +291,21 @@ class   MainMenuActivity : AppCompatActivity() {
         applicationContext.dataStore.edit { settings ->
             val currentCounterValue = settings[counterKey] ?: 0
             settings[counterKey] = currentCounterValue + 1
-            Log.i("MainMenuActivity", "counter ${currentCounterValue+1}")
-
         }
 
     }
 
     private suspend fun setAttemptLockDate(){
-        Log.i("MainMenuActivity", "setAttemptLockDate")
-        showNotification()
-        val dateKey = longPreferencesKey(DATE_KEY)
-        val currentTimeSecs = System.currentTimeMillis()/1000
-        applicationContext.dataStore.edit { settings ->
-            //val currentCounterValue = settings[counterKey] ?: 0
-            settings[dateKey] = currentTimeSecs
+        if (checkIsNotBlocked()){
+            showNotification()
+            val dateKey = longPreferencesKey(DATE_KEY)
+            val currentTimeSecs = System.currentTimeMillis()/1000
+            applicationContext.dataStore.edit { settings ->
+                settings[dateKey] = currentTimeSecs
+            }
         }
     }
     private fun showNotification() {
-        Log.i("MainMenuActivity", "showNotification")
-
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.POST_NOTIFICATIONS
