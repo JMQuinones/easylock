@@ -53,6 +53,7 @@ class BluetoothConnectActivity : AppCompatActivity() {
     private fun initListeners() {
         checkPermission()
         binding.btnPair.setOnClickListener{openBluetoothSettings()}
+        binding.btnRefresh.setOnClickListener { reloadDevices() }
         binding.listDeviceBluetooth.setOnItemClickListener { _, _, i, _ ->
             if (!pairedDevices.isEmpty()) {
                 binding.tvTitle.text = resources.getString(R.string.select_device)
@@ -81,6 +82,12 @@ class BluetoothConnectActivity : AppCompatActivity() {
             Log.e("Error on backpress", e.toString())
         }
 
+    }
+
+    private fun reloadDevices() {
+        showToastNotification("Actualizando dispositivos...")
+        bluetoothUtils.loadPairedDevices()
+        loadPairedDevices()
     }
 
     private fun loadPairedDevices() {
