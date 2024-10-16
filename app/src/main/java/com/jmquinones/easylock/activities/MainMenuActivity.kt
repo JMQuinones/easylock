@@ -90,7 +90,12 @@ class   MainMenuActivity : AppCompatActivity() {
         }
 
         binding.cvClose.setOnClickListener{
-            closeLock();
+            if(checkIsNotBlocked()){
+                closeLock()
+            } else {
+                //showNotification()
+                showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
+            }
         }
         lifecycleScope.launch(Dispatchers.IO) {
             val exampleCounterFlow: Flow<Int> = applicationContext.dataStore.data

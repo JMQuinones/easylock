@@ -28,5 +28,6 @@
     <string name="imprimir_registros">Imprimir registros</string>
     <string name="pair_device">Emparejar dispositivo</string>
     <string name="negative">negative</string>
+    <string name="reload_devices">Recargar dispositivos</string>
 
 </resources>

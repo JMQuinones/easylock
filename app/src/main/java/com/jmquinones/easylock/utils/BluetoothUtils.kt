@@ -21,7 +21,7 @@ class BluetoothUtils(var MACAddress: String = "", val context: Context) {
         loadPairedDevices()
     }
 
-    private fun loadPairedDevices() {
+    fun loadPairedDevices() {
         pairedDevices = bluetoothManager.pairedDevicesList
     }
 
