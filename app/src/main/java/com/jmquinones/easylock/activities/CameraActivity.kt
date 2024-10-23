@@ -19,7 +19,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.lifecycleScope
 import com.google.mediapipe.framework.image.BitmapImageBuilder
-import com.google.mediapipe.tasks.components.containers.Category
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.imageclassifier.ImageClassifier
@@ -29,9 +28,9 @@ import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.jmquinones.easylock.R
-import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.databinding.ActivityCameraBinding
 import com.jmquinones.easylock.ml.ModelCv
+import com.jmquinones.easylock.utils.BluetoothUtils
 import com.jmquinones.easylock.utils.Constants.Companion.ATTEMPT_COUNTER_KEY
 import com.jmquinones.easylock.utils.Constants.Companion.DATE_KEY
 import com.jmquinones.easylock.utils.LogUtils
@@ -39,16 +38,20 @@ import com.jmquinones.easylock.utils.NotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.time.Instant
 
 class CameraActivity : AppCompatActivity() {
+    companion object {
+        const val TAG = "CameraActivity"
+    }
+
     private lateinit var binding: ActivityCameraBinding
     private var imageSize: Int = 224
     private lateinit var detector: FaceDetector
@@ -67,31 +70,24 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-
         lifecycleScope.launch(Dispatchers.IO) {
-            val exampleCounterFlow: Flow<Int> = applicationContext.dataStore.data
+            val faceAttemptCounter: Flow<Int> = applicationContext.dataStore.data
                 .map { preferences ->
-                    // No type safety.
                     preferences[intPreferencesKey(ATTEMPT_COUNTER_KEY)] ?: 0
                 }
-            exampleCounterFlow.collectLatest{ attempts ->
-                Log.d("Attempts", "$attempts")
+            faceAttemptCounter.collectLatest{ attempts ->
+                Log.i(TAG, "Attempts $attempts")
                 if (attempts >= 5) {
-                    Log.d("Attempts", "To many attempts")
+                    Log.i(TAG, "To many attempts")
                     setAttemptLockDate()
                     runOnUiThread {
                         showToastNotification("Demasiados intentos. Vuelva a intentarlo despues.")
                     }
-                    finish()
+                    returnToMainMenu()
                 }
             }
         }
         binding.btnPicture.setOnClickListener {
-            //TODO: Move to invalid face
-            /*lifecycleScope.launch(Dispatchers.IO){
-                incrementAttemptsCounter()
-            }*/
-            // Launch camera if we have permission
             if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 resultLauncher.launch(cameraIntent)
@@ -100,6 +96,13 @@ class CameraActivity : AppCompatActivity() {
                 requestPermissions(arrayOf(Manifest.permission.CAMERA), 100)
             }
         }
+    }
+
+    private fun returnToMainMenu() {
+        finish()
+        val intent = Intent(this@CameraActivity, MainMenuActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
     }
 
     private var resultLauncher =
@@ -156,8 +159,8 @@ class CameraActivity : AppCompatActivity() {
                         val face = faces.first()
                         val bounds = face.boundingBox
                         Log.d(
-                            "bounds",
-                            "left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}"
+                            TAG,
+                            "Bounds: left ${bounds.left} top ${bounds.top} right ${bounds.right} bottom ${bounds.bottom}"
                         )
                         // crop detected face
                         val faceDetected = Bitmap.createBitmap(
@@ -392,6 +395,34 @@ class CameraActivity : AppCompatActivity() {
     private fun requestNotificationPermission() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun checkIsNotBlocked(): Boolean {
+        val currentTimeSecs = System.currentTimeMillis()/1000
+
+        val storeData = runBlocking { applicationContext.dataStore.data.first()}
+        val blockDateSecs = storeData[longPreferencesKey(DATE_KEY)] ?: 0
+        if ( (currentTimeSecs - blockDateSecs) >= 60){
+            if (blockDateSecs > 0 ) {
+                lifecycleScope.launch(Dispatchers.IO){
+                    resetDataStore()
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+    private suspend fun resetDataStore() {
+        Log.i("CameraActivity", "resetcounter 2")
+        val counterKey = intPreferencesKey(ATTEMPT_COUNTER_KEY)
+        applicationContext.dataStore.edit { settings ->
+            settings[counterKey] = 0
+        }
+        val dateKey = longPreferencesKey(DATE_KEY)
+        applicationContext.dataStore.edit { settings ->
+            settings[dateKey] = 0L
         }
     }
 

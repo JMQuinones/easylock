@@ -270,9 +270,15 @@ class   MainMenuActivity : AppCompatActivity() {
         val storeData = runBlocking { applicationContext.dataStore.data.first()}
         val blockDateSecs = storeData[longPreferencesKey(DATE_KEY)] ?: 0
 
+        Log.i("MainMenuActivity", "Current $currentTimeSecs")
+        Log.i("MainMenuActivity", "Blocked $blockDateSecs")
+        Log.i("MainMenuActivity", "Difference ${currentTimeSecs-blockDateSecs}")
+
         if ((currentTimeSecs - blockDateSecs) >= 60){
-            lifecycleScope.launch(Dispatchers.IO){
-                resetDataStore()
+            if (blockDateSecs > 0 ) {
+                lifecycleScope.launch(Dispatchers.IO){
+                    resetDataStore()
+                }
             }
             return true
         } else {
