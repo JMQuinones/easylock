@@ -18,9 +18,17 @@ android {
     }
 
     buildTypes {
+        debug{
+            debuggable true
+        }
         release {
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            packagingOptions {
+                exclude 'com/android/tools/profiler/**'
+                exclude 'META-INF/profiler'
+            }
         }
     }
     compileOptions {
@@ -72,4 +80,6 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
+    //implementation 'com.google.android.datatransport:transport-api:4.0.0'
+    implementation 'com.google.android.datatransport:transport-runtime:3.0.1'
 }
